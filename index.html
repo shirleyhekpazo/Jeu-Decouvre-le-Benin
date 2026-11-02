@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mon voyage au Bénin</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{--bg:#fff4dc;--ink:#3a2412;--card:#fffaf0;--acc:#e8a317;--g:#2f9e5b;--r:#d9482b;color-scheme:light dark}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#2a1d12;--ink:#fff1d6;--card:#3b2a1b}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:"Trebuchet MS",system-ui,sans-serif;overflow:hidden;touch-action:none}
+body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+#app{position:relative;height:100%;max-width:520px;margin:auto}
+canvas{width:100%;height:100%;display:block}
+.hud{position:absolute;top:8px;left:8px;right:8px;display:flex;justify-content:space-between;gap:6px;pointer-events:none}
+.pill{background:var(--card);border:3px solid var(--ink);border-radius:20px;padding:5px 12px;font-weight:700;font-size:14px;box-shadow:0 3px 0 var(--ink)}
+.btn{background:var(--acc);color:#3a2412;border:3px solid var(--ink);border-radius:16px;padding:10px 16px;font:700 15px inherit;box-shadow:0 4px 0 var(--ink);pointer-events:auto;cursor:pointer}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.nav{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:10px}
+.scr{position:absolute;inset:0;background:var(--bg);overflow-y:auto;padding:14px;touch-action:pan-y;display:none}
+.scr.on{display:block}
+h1{font-size:26px;margin:6px 0}h2{margin:4px 0}
+.dep{display:flex;align-items:center;gap:10px;background:var(--card);border:3px solid var(--ink);border-radius:16px;padding:10px;margin:8px 0}
+.dep.lock{opacity:.5;filter:grayscale(1)}
+.dep.ok{border-color:var(--g)}
+.dep small{display:block;opacity:.75}
+.dh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:18px;padding-bottom:4px;border-bottom:3px solid var(--ink)}
+.dh h3{margin:0}.dh.lock{opacity:.5}
+.cnt{font-weight:800;font-size:13px;white-space:nowrap}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pg{aspect-ratio:3/4;background:var(--card);border:3px solid var(--ink);border-radius:10px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;padding:4px;transform:rotate(var(--rot,0deg));font-weight:700}
+.pg.q{background:repeating-linear-gradient(45deg,#d9c9a3,#d9c9a3 8px,#cbb98d 8px,#cbb98d 16px);font-size:28px}
+.ph{height:170px;border:3px dashed var(--ink);border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px;margin:8px 0;background:var(--card)}
+.plq{position:absolute;top:54px;left:50%;transform:translateX(-50%);background:#e8a317;color:#3a2412;border:3px solid var(--ink);border-radius:12px;padding:4px 14px;font-weight:800;font-size:13px;box-shadow:0 3px 0 var(--ink);pointer-events:none;white-space:nowrap}
+.nxt{position:absolute;top:92px;left:50%;transform:translateX(-50%);background:var(--card);color:var(--ink);border:3px solid var(--ink);border-radius:12px;padding:3px 12px;font-weight:700;font-size:12px;pointer-events:none;max-width:92%;text-align:center}
+.toast{position:absolute;left:50%;top:calc(env(safe-area-inset-top,0px) + 6px);z-index:30;max-width:92%;box-sizing:border-box;transform-origin:top center;transform:translateX(-50%) scale(.8);background:var(--card);border:3px solid var(--ink);border-radius:18px;padding:12px 18px;font-weight:800;text-align:center;opacity:0;transition:.25s;pointer-events:none}
+.toast.on{opacity:1;transform:translateX(-50%) scale(1)}
+a.btn{display:inline-block;text-decoration:none;margin:4px 4px 4px 0}
+#mm{position:absolute;right:8px;top:128px;width:80px;height:152px;background:#fff8e8d9;border:3px solid var(--ink);border-radius:14px;pointer-events:none}
+#book,#page{background:#3b2314}#book h2,#page h2{color:inherit}
+.cov{background:linear-gradient(135deg,#7a3b1e,#4a2111);color:#f6d58a;border:4px solid #2a1308;border-radius:14px;padding:12px;text-align:center;box-shadow:inset 0 0 0 4px #c98d4e55}
+.pagne{height:14px;background:repeating-linear-gradient(90deg,#d9482b 0 12px,#e8a317 12px 24px,#2f9e5b 24px 36px,#3a2412 36px 40px);margin:8px 0;border-radius:3px}
+.sheet{color:#3a2412;background:#fbf3df repeating-linear-gradient(0deg,#0000 0 27px,#c9a86a33 27px 28px);border:2px solid #8a5530;border-radius:6px;padding:12px;margin:14px 0;box-shadow:3px 3px 0 #0006}
+.sheet .dh{border-bottom:3px solid #d9482b;margin-top:0}
+.hw{font-family:"Segoe Print","Bradley Hand","Comic Sans MS",cursive}
+.dcov{margin-top:12px}.dcov.lock{opacity:.6;filter:sepia(.6)}.dimg{height:130px;overflow:hidden;border-radius:8px;margin:8px 0;background:#0003;display:flex;align-items:center;justify-content:center}.dimg img{width:100%;height:100%;object-fit:cover}
+.pg2{display:grid;grid-template-columns:repeat(2,1fr);gap:18px 12px;margin-top:14px}
+.pol{background:#fffdf5;padding:6px 6px 8px;box-shadow:0 3px 8px #0006;position:relative;transform:rotate(var(--rot,0deg));text-align:center;font-size:12px;cursor:pointer}
+.pol::before{content:"";position:absolute;top:-9px;left:50%;width:46px;height:16px;margin-left:-23px;background:#e8a317aa;transform:rotate(-4deg)}
+.pol .im{height:92px;background:#d9c9a3;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:34px;margin-bottom:6px}
+.pol .im img{width:100%;height:100%;object-fit:cover}
+.pol.lk{filter:sepia(.7) brightness(.8);cursor:default}
+.stamp{display:inline-block;border:3px double #d9482b;color:#d9482b;border-radius:8px;padding:1px 6px;transform:rotate(-6deg);font-weight:800;font-size:11px;margin-top:4px}
+.tvb{margin-top:14px}.tvb .btn{padding:6px 10px;font-size:13px}
+#intro{position:absolute;inset:0;z-index:60;background:#0b1a2a;transition:opacity .6s;touch-action:none}
+#intro.out{opacity:0;pointer-events:none}
+#intro canvas{position:absolute;inset:0}
+#isk{position:absolute;top:10px;right:10px;padding:6px 12px;font-size:13px}
+.btn{min-height:50px;min-width:54px;background:linear-gradient(#ffe27a,#e8a317 55%,#c27a0a);border:3px solid #4a2a10;border-radius:18px;box-shadow:0 5px 0 #4a2a10,inset 0 2px 0 #fff9,0 9px 16px #0005;text-shadow:0 1px 0 #fff8;transition:transform .08s,box-shadow .08s,filter .15s}
+.btn:hover{filter:brightness(1.08)}.btn:active{transform:translateY(4px) scale(.98);box-shadow:0 1px 0 #4a2a10,inset 0 2px 0 #fff9,0 2px 6px #0005}
+.pill{background:linear-gradient(#fff8e2,#f0d596);border:3px solid #4a2a10;box-shadow:0 4px 0 #4a2a10,0 8px 14px #0004;font-size:15px}
+.plq{background:linear-gradient(#ffe27a,#e8a317);box-shadow:0 4px 0 #4a2a10,0 8px 14px #0005}
+
+/* ===== v2 : transitions, carnet, finitions ===== */
+.scr.on{animation:scrIn .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes scrIn{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+.scr.turn{animation:turn .6s cubic-bezier(.3,.7,.2,1);transform-origin:left center}
+@keyframes turn{0%{opacity:.2;transform:perspective(900px) rotateY(-38deg) translateX(30px)}100%{opacity:1;transform:none}}
+#bkc{position:absolute;inset:0;z-index:50;perspective:1400px;pointer-events:none;overflow:hidden}
+#bkc i{position:absolute;inset:0;transform-origin:left center;border-radius:6px 16px 16px 6px;background:radial-gradient(circle at 30% 20%,#9a4c26,#5a2a14 60%,#3a1a0a);box-shadow:inset 0 0 0 6px #c98d4e66,inset 14px 0 18px #0008,0 0 40px #000a;animation:bkOpen 1.15s cubic-bezier(.65,0,.25,1) .1s forwards;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#f6d58a;font:800 28px "Segoe Print","Bradley Hand",cursive;text-align:center;gap:10px;backface-visibility:hidden}
+#bkc i::before,#bkc i::after{content:"";width:70%;height:16px;background:repeating-linear-gradient(90deg,#d9482b 0 12px,#e8a317 12px 24px,#2f9e5b 24px 36px,#3a2412 36px 40px);border-radius:3px}
+#bkc b{position:absolute;inset:0;background:#3b2314;animation:bkFade .5s ease .9s forwards}
+@keyframes bkOpen{0%{transform:rotateY(0)}100%{transform:rotateY(-172deg);opacity:.0}}
+@keyframes bkFade{to{opacity:0}}
+.sheet{background:#fbf3df url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .35 0 0 0 0 .15 0 0 0 .12 0'/%3E%3C/filter%3E%3Crect width='80' height='80' filter='url(%23n)'/%3E%3C/svg%3E");border-radius:4px 14px 14px 4px;box-shadow:inset 10px 0 14px -8px #0004,4px 6px 0 #0005}
+.pol{box-shadow:0 2px 0 #fff inset,0 6px 12px #0007;transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+.pol:not(.lk):active,.pol:not(.lk):hover{transform:rotate(0) scale(1.05) translateY(-3px);z-index:2}
+.pol.big{grid-column:span 2}.pol.big .im{height:170px}
+.pol:nth-child(3n)::before{background:#2f9e5bb0;transform:rotate(5deg)}
+.pol:nth-child(3n+1)::before{background:#d9482bb0}
+.pol:nth-child(2n):not(.lk)::after{content:"★";position:absolute;right:-8px;bottom:-10px;font-size:24px;color:#e8a317;text-shadow:0 2px 0 #4a2a10;transform:rotate(14deg)}
+.nav .btn{animation:pulse 2.6s ease-in-out infinite}.nav .btn:nth-child(2){animation-delay:.4s}
+@keyframes pulse{50%{transform:scale(1.045);filter:brightness(1.1)}}
+.pill{backdrop-filter:blur(4px)}
+.toast.on{animation:pop .45s cubic-bezier(.3,1.6,.5,1)}
+@keyframes pop{0%{transform:translateX(-50%) scale(.5)}100%{transform:translateX(-50%) scale(1)}}
+
+/* ===== v3 : choc, veille, portail violet, turbo ===== */
+.scr{z-index:27}.nav{z-index:26}
+#aie{position:absolute;left:50%;top:34%;width:250px;height:220px;margin:-110px 0 0 -125px;z-index:35;pointer-events:none;opacity:0;filter:drop-shadow(0 5px 0 #3a2412)}
+#aie.on{animation:aieK 1.7s ease-out forwards}
+@keyframes aieK{0%{opacity:0;transform:scale(.2) rotate(-25deg)}14%{opacity:1;transform:scale(1.28) rotate(7deg)}28%{transform:scale(1) rotate(-4deg)}80%{opacity:1}100%{opacity:0;transform:scale(1.08) rotate(-4deg)}}
+#aie i,#aie b{position:absolute;inset:0;clip-path:polygon(50.0% 0.0%,57.0% 14.7%,69.1% 3.8%,70.0% 20.1%,85.4% 14.6%,79.9% 30.0%,96.2% 30.9%,85.3% 43.0%,100.0% 50.0%,85.3% 57.0%,96.2% 69.1%,79.9% 70.0%,85.4% 85.4%,70.0% 79.9%,69.1% 96.2%,57.0% 85.3%,50.0% 100.0%,43.0% 85.3%,30.9% 96.2%,30.0% 79.9%,14.6% 85.4%,20.1% 70.0%,3.8% 69.1%,14.7% 57.0%,0.0% 50.0%,14.7% 43.0%,3.8% 30.9%,20.1% 30.0%,14.6% 14.6%,30.0% 20.1%,30.9% 3.8%,43.0% 14.7%)}
+#aie i{background:#ffd23c}#aie b{inset:11%;background:#e5321f}
+#aie span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:900 54px "Trebuchet MS",system-ui,sans-serif;color:#fff;-webkit-text-stroke:3px #3a2412;paint-order:stroke fill;transform:rotate(-8deg)}
+#aie u{position:absolute;left:50%;top:50%;width:15px;height:15px;margin:-7px;border-radius:50%;background:#ffd23c;border:2px solid #3a2412;opacity:0}
+#aie.on u{animation:drp .95s ease-out .05s forwards}
+@keyframes drp{0%{opacity:1;transform:translate(0,0) scale(.6)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.3)}}
+#go{position:absolute;inset:0;z-index:25;background:rgba(20,10,35,.42);display:none;align-items:flex-end;justify-content:center;padding-bottom:84px;pointer-events:none}
+#go.on{display:flex;animation:scrIn .4s ease-out}
+#go .gc{pointer-events:auto;background:var(--card);border:3px solid var(--ink);border-radius:18px;padding:12px 18px;text-align:center;box-shadow:0 5px 0 var(--ink);max-width:88%}
+#go .gc div{font-weight:800;margin-bottom:10px;font-size:15px}
+#go .btn{font-size:18px;padding:12px 28px}
+#arr{position:absolute;top:128px;left:50%;transform:translateX(-50%);z-index:21;display:none;align-items:center;gap:8px;background:#7a2fd6;color:#fff;border:3px solid var(--ink);border-radius:14px;padding:4px 12px;font-weight:800;font-size:13px;box-shadow:0 3px 0 var(--ink);pointer-events:none;max-width:62%;animation:blinkA .7s ease-in-out infinite}
+#arr.on{display:flex}#arr .ar{font-size:28px;line-height:1}#arr small{font-weight:700;opacity:.9;font-size:12px}
+@keyframes blinkA{0%,100%{opacity:1}50%{opacity:.2}}
+#tint,#warp,#flash{position:absolute;inset:0;pointer-events:none;z-index:20;opacity:0}
+#tint{background:radial-gradient(circle at 50% 55%,transparent 35%,#8a3ff0 130%)}
+#warp{inset:-25%;background:repeating-conic-gradient(from 0deg at 50% 52%,rgba(205,150,255,.6) 0 1.1deg,transparent 1.1deg 6.5deg);-webkit-mask-image:radial-gradient(circle at 50% 52%,transparent 20%,#000 70%);mask-image:radial-gradient(circle at 50% 52%,transparent 20%,#000 70%);animation:rayj .09s steps(2) infinite}
+@keyframes rayj{50%{transform:rotate(2.5deg)}}
+#flash{background:radial-gradient(circle,#e7c9ff,#8a3ff0 70%)}
+#flash.on{animation:flashK .8s ease-out}
+@keyframes flashK{0%{opacity:.95}100%{opacity:0}}
+/* ===== v4 : carte du voyage + intro ===== */
+.mapH{background:linear-gradient(135deg,#7a3b1e,#4a2111);color:#f6d58a;border:4px solid #2a1308;border-radius:16px;padding:10px 12px;margin-bottom:10px;box-shadow:inset 0 0 0 3px #c98d4e55,0 4px 0 #2a1308}
+.mapH h2{margin:2px 0}
+.mapW{position:relative;max-width:440px;margin:0 auto;border:4px solid var(--ink);border-radius:18px;overflow:hidden;box-shadow:0 5px 0 var(--ink),0 12px 22px #0004;background:#2a89b0}
+.leg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;font-weight:700;margin-top:10px;justify-content:center}
+.leg i{display:inline-block;width:12px;height:12px;border-radius:50%;border:2px solid var(--ink);margin-right:4px;vertical-align:-2px}
+.bar{height:8px;background:#0003;border-radius:6px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#2f9e5b,#e8a317);border-radius:6px}
+.dc{display:flex;align-items:center;gap:10px;background:var(--card);border:3px solid var(--ink);border-radius:16px;padding:10px;margin:8px 0;box-shadow:0 3px 0 var(--ink);cursor:pointer}
+.dc.lock{opacity:.55;filter:grayscale(.7);cursor:default}
+.dc.cur{border-color:var(--acc);box-shadow:0 0 0 3px #e8a31766,0 3px 0 var(--ink)}
+.dc small{display:block;opacity:.75;font-size:12px}
+.dc .nb{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;border:3px solid var(--ink);flex:none}
+#isk{top:calc(env(safe-area-inset-top,0px) + 14px);right:12px;min-height:34px;min-width:0;padding:5px 14px;font-size:13px;background:rgba(20,14,40,.45);color:#fff4dc;border:2px solid rgba(255,244,220,.6);box-shadow:none;text-shadow:none;border-radius:20px;backdrop-filter:blur(6px);z-index:5;animation:none}
+#isk:active{transform:scale(.96);box-shadow:none}
+.credit{position:absolute;left:0;right:0;bottom:0;z-index:70;text-align:center;font-size:9px;line-height:10px;letter-spacing:.3px;color:var(--ink);opacity:.45;pointer-events:none;user-select:none;-webkit-user-select:none;text-shadow:0 0 3px var(--bg)}
+#start.on{display:flex;flex-direction:column;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 22px)}
+#start h1{font-size:22px;margin:2px 0 10px;flex:none}
+.how{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;background:var(--card);border:3px solid var(--ink);border-radius:18px;box-shadow:0 4px 0 var(--ink);overflow:hidden}
+.howh{flex:none;background:var(--acc);color:#3a2412;font-weight:800;font-size:16px;text-align:center;padding:8px 12px;border-bottom:3px solid var(--ink)}
+.howt{flex:1 1 auto;overflow-y:auto;padding:4px 14px 8px;font-size:13px;line-height:1.4;touch-action:pan-y}
+.howt p{margin:8px 0}
+.ask{flex:none;margin-top:14px;text-align:center}
+.askq{font-weight:800;font-size:18px;margin-bottom:10px}
+.askb{display:flex;gap:14px}
+.askb .btn{flex:1;min-height:68px;font-size:24px;font-weight:800}
+</style></head><body>
+<div id="app">
+<div class="credit">Jeu créé par Sigrid-Solène Shirley HEKPAZO</div>
+<canvas id="c"></canvas>
+<div class="hud"><div class="pill" id="hd">–</div><div class="pill" id="hs">–</div></div>
+<div class="plq" id="pq"></div>
+<div class="nxt" id="nx"></div>
+<div class="toast" id="toast"></div><canvas id="mm" width="80" height="152"></canvas>
+<div class="nav"><button class="btn" onclick="show('map')">🗺️ Carte</button><button class="btn" onclick="show('book')">📖 Carnet</button><button class="btn" id="pz" type="button" onclick="togglePause()">⏸ Pause</button></div>
+<div id="tint"></div><div id="warp"></div><div id="flash"></div>
+<div id="arr"><span class="ar">⬆️</span><div><b id="arrT"></b><br><small id="arrM"></small></div></div>
+<div id="aie"><i></i><b></b><span>Aïe&nbsp;!</span><u style="--dx:-120px;--dy:-70px"></u><u style="--dx:115px;--dy:-80px"></u><u style="--dx:-135px;--dy:20px"></u><u style="--dx:140px;--dy:30px"></u><u style="--dx:-80px;--dy:95px"></u><u style="--dx:85px;--dy:100px"></u><u style="--dx:0px;--dy:-115px"></u><u style="--dx:10px;--dy:120px"></u></div>
+<div id="go"><div class="gc"><div id="goT"></div><button class="btn" id="goB" type="button">▶ Démarrer</button></div></div>
+<div id="intro"><canvas id="ic"></canvas><button class="btn" id="isk" type="button">Passer ⏭</button></div>
+<div class="scr on" id="start"><h1>🛵 Mon voyage au Bénin</h1><div class="how"><div class="howh">❓ Comment jouer ?</div><div class="howt"><p>Monte à l'arrière du Zemidjan. <b>Glisse le doigt</b> à gauche et à droite. La route est unique : chaque lieu du département apparaît <b>au bord de la route, à gauche ou à droite</b>. Serre vers ce côté quand tu arrives devant lui pour t'arrêter et capturer ton souvenir. Si tu le rates, il revient plus loin sur la même route.</p><p>La sortie du département s'ouvre seulement quand tous ses lieux sont visités. Ton carnet range les souvenirs par département, puis par zone.</p><p>⚠️ <b>Évite les obstacles</b> : un seul choc et tu tombes de la moto, puis tu repars de l'entrée du département (tes souvenirs déjà pris restent dans le carnet).</p><p>Les récits sont sourcés. Si une page est vide, la source n'est pas encore ajoutée : rien n'est inventé. Le tracé de la route est provisoire.</p><p>12 départements, du Littoral à l'Alibori. Le prochain s'ouvre quand le précédent est terminé.</p></div></div><div class="ask"><div class="askq">Je suis Béninois(e) ?</div><div class="askb"><button class="btn" type="button" onclick="startTrip(true)">Oui</button><button class="btn" type="button" onclick="startTrip(false)">Non</button></div></div></div>
+<div class="scr" id="map"></div>
+<div class="scr" id="book"></div>
+<div class="scr" id="page"></div>
+</div>
+<script>
+/* ===== DONNÉES MODULAIRES =====
+ Un département = [nom, communes, [lieux dans l'ordre de la visite]].
+ Pour chaque souvenir, renseigner plus tard : photo (URL), story, anecdote, video (ID YouTube), sources [{t,u}].
+ Tant que ces champs sont vides, le jeu affiche un emplacement clairement identifié. Rien n'est inventé. */
+const D=[
+["Littoral","Cotonou",["Aéroport Cardinal Bernardin Gantin","Esplanade et statue de l'Amazone","Place Bio Guéra","Place du Souvenir / Haie Vive","Monument aux Dévoués","Marché Ganhi","Marché des Arts / Centre d'artisanat (Fidjrossè)","Cité Ministérielle (Cadjèhoun)","Boulevard de la Marina","Mur des Fresques / Port de Cotonou","Étoile Rouge · Ateliers de Cotonou · Plage de Fidjrossè"]],
+["Atlantique","Ouidah · Abomey-Calavi · Allada",["Ouidah – Porte du Non-Retour","Ouidah – Fort portugais / Musée d'Histoire","Ouidah – Temple des Pythons","Ouidah – Forêt sacrée de Kpassè","Ouidah – Place Chacha / Place aux enchères","Ouidah – Route de l'Esclave","Ganvié – Cité lacustre et marché flottant","Sô-Ava – Ganvié II · Vekky","Abomey-Calavi – Fondation Zinsou","Allada – Palais royal d'Allada"]],
+["Ouémé","Porto-Novo · Adjarra",["Porto-Novo – Musée international du Vodun","Porto-Novo – Palais royal Honmè","Porto-Novo – Mosquée centrale afro-brésilienne","Porto-Novo – Musée da Silva","Adjarra – Village des tambours","Aguégués – Cité lacustre","Bonou – Forêt sacrée de Bonou","Dangbo – Site de Wémè","Sèmè-Podji – Plage de Sèmè · Poste frontière"]],
+["Plateau","Kétou · Pobè · Sakété",["Kétou – Porte Akaba Idénan et Palais royal","Pobè – Forêt sacrée d'Itchèdè-Toffo","Sakété – Palais royal yoruba","Ifangni – Lac Itchèdè","Adja-Ouèrè – Masques Egoun","Kétou – Musée Akaba","Pobè – Marché aux masques"]],
+["Mono","Lokossa · Grand-Popo",["Grand-Popo – Bouche du Roy","Grand-Popo – Villa Karo, Musée","Lokossa – Palais royal de Mono","Comè – Masques Guèlèdè","Athiémé – Site de l'esclavage côté Mono","Bopa – Lac Ahémé, pêche traditionnelle","Houéyogbé – Forêt sacrée de Dahé","Grand-Popo – Maison du Brésilien"]],
+["Couffo","Aplahoué · Dogbo",["Dogbo – Musée du Roi et Prison Aholoé","Dogbo – Site métallurgique de Ségba","Aplahoué – Palais royal Adja-Tado","Klouékanmè – Forêt sacrée de Lanta","Lalo – Lac Ahémé côté Couffo","Toviklin – Palais Adja"]],
+["Zou","Abomey · Bohicon",["Abomey – Palais royaux","Abomey – Musée des Rois et des Amazones","Abomey – Place Singbodji, départ de la Route de l'Esclave","Abomey – Temple des Bas-reliefs","Zogbodomey – Site de Cana","Za-Kpota – Palais royal de Za","Bohicon – Marché de Bohicon et Place du Dada","Djidja – Agonlin, collines sacrées","Ouinhi – Toffinso, village sur l'eau"]],
+["Collines","Dassa-Zoumè · Savalou",["Dassa – Collines sacrées Yaka","Dassa – Basilique Notre-Dame d'Arigbo","Savalou – Palais royal Soha et Atakora de Savalou","Savè – Oké Shabe (Mamelle de Savè)","Bantè – Monts Atacora, grottes","Glazoué – Palais Aja-Oloto","Ouèssè – Forêt de Toui-Kilibo","Dassa – Palais royal de Dassa"]],
+["Donga","Djougou · Bassila",["Djougou – Palais royal Kilir","Mont Tanéka – Village Tanéka Koko","Bassila – Monts Atacora, Chutes de Penelan","Copargo – Forêt sacrée de Kota","Djougou – Marché aux wares Yom","Ouaké – Culture Anii, montagnes"]],
+["Borgou","Parakou · Nikki",["Nikki – Palais royal et Fête Gaani","Parakou – Musée ethnographique en plein air","Parakou – Mosquée centrale","Bembéréké – Guérisse en terre, forges anciennes","N'Dali – Palais de N'Dali","Pèrèrè – Guésérou, site de chasse royale","Tchaourou – Village de Bio Guéra","Sinendé – Forêt sacrée de Sakarou"]],
+["Atacora","Natitingou · Tanguiéta",["Natitingou – Tatas Somba","Chutes de Kota","Chutes de Tanougou","Parc de la Pendjari – Port principal","Natitingou – Musée régional","Tata de Kouaba","Monts Atacora – Pic de Natitingou","Kouandé – Palais royal","Tanguiéta – Forêt sacrée","Cascade de Tebou"]],
+["Alibori","Kandi · Malanville",["Parc national du W","Parc de la Pendjari côté Alibori","Kandi – Palais royal de Kandi","Malanville – Marché frontalier du Niger","Guéné – Fête de la Gaani locale","Karimama – Île aux oiseaux sur le Niger","Banikoara – Greniers à coton historiques","Segbana – Falaises du Niger"]]
+].map((d,i)=>({n:d[0],v:d[1],s:d[2].map((x,j)=>({id:i+'-'+j,n:x,photo:null,story:null,anecdote:null,video:null,sources:[]}))}));
+Object.assign(D[0].s[1],{n:"Esplanade et statue de l'Amazone",ll:"6.34889,2.40750",facts:["Elle se trouve entre le boulevard de la Marina et l'océan Atlantique, dans le 12e arrondissement de Cotonou, en face de la place de l'Indépendance et du palais présidentiel.","La statue mesure 30 m, avec une structure métallique et une enveloppe en bronze. Elle rend hommage aux guerrières du royaume du Dahomey, les Agodjié.","Elle a été dévoilée par le président Patrice Talon le 30 juillet 2022. Son concepteur est l'artiste chinois Li Xiangqun.","L'esplanade, de plus de 1 000 m², fait face à l'océan et se visite surtout en fin de journée."],dist:["≈ 2,6 km de l'aéroport, à vol d'oiseau (calculé à partir des coordonnées publiées ; par la route, ce sera plus long)","Côté plage : l'esplanade s'étend entre le boulevard et l'océan, donc directement en bord de mer"],sources:[{t:"Wikipédia – Amazon Monument",u:"https://en.wikipedia.org/wiki/Amazon_Monument_(Benin)"},{t:"Benin Web TV – dévoilement des statues",u:"https://beninwebtv.bj/benin-mystere-autour-du-cout-de-realisation-du-monument-aux-devoues-lamazone-et-bio-guera/"},{t:"Gouvernement du Bénin – Esplanade de l'Amazone",u:"https://www.gouv.bj/article/2333/%22chante-danse-avec-amazone%22-cotonou-artistes-animation-acoustique-gratuite-tous-soirs-esplanade-amazone/"},{t:"benin.bj – Tourisme à Cotonou",u:"https://benin.bj/en/news/tourism-in-cotonou-what-to-see-and-do-in-benins-economic-capital"}]});
+Object.assign(D[0].s[0],{n:"Aéroport Cardinal Bernardin Gantin",ll:"6.355833,2.3851",facts:["C'est le seul aéroport international du pays, dans le quartier de Cadjehoun à Cotonou.","Il porte le nom du cardinal béninois Bernardin Gantin.","Selon la source, il est à environ 5 km du centre-ville.","Selon Benin Web TV, une statue de Bio Guéra est installée sur le rond-point de l'aéroport."],dist:["≈ 2,6 km de l'Esplanade de l'Amazone, à vol d'oiseau"],sources:[{t:"Wikipédia – Cadjehoun Airport",u:"https://en.wikipedia.org/wiki/Cadjehoun_Airport"},{t:"Logistics Cluster – aéroport de Cotonou",u:"https://dlca.logcluster.org/print-preview/1894"},{t:"Benin Web TV – statues",u:"https://beninwebtv.bj/benin-mystere-autour-du-cout-de-realisation-du-monument-aux-devoues-lamazone-et-bio-guera/"}]});
+Object.assign(D[0].s[8],{n:"Boulevard de la Marina",ll:"Boulevard de la Marina, Cotonou, Bénin",facts:["Le boulevard longe l'Esplanade de l'Amazone côté terre : l'esplanade s'étend entre lui et l'océan.","En face de l'esplanade se trouvent la place de l'Indépendance et le palais présidentiel."],dist:[],sources:[{t:"Wikipédia – Amazon Monument",u:"https://en.wikipedia.org/wiki/Amazon_Monument_(Benin)"}]});
+const ICO=["🛕","🐘","🌴","🦁","🏺","🎭","🥁","⛰️","🦓","🌅","🐆","🍲"];
+let S={dep:0,got:{}};
+try{S=JSON.parse(localStorage.getItem('vb2')||'')||S}catch(e){}
+const save=()=>{try{localStorage.setItem('vb2',JSON.stringify(S))}catch(e){}};
+const $=id=>document.getElementById(id);
+const sideOf=s=>{const[i,j]=s.id.split('-').map(Number);return (i+j)%2?1:-1};
+const sideTxt=s=>sideOf(s)<0?'gauche':'droit';
+var isBeninois=null;function startTrip(v){isBeninois=v;show('')}
+function show(id){['start','map','book','page'].forEach(k=>$(k).classList.toggle('on',k==id));if(id=='map')drawMap();if(id=='book'){drawBook();const a=document.getElementById('app'),o=document.createElement('div');o.id='bkc';o.innerHTML='<b></b><i>📖<span>Carnet<br>de voyage</span></i>';a.appendChild(o);setTimeout(()=>o.remove(),1300)}}
+/* ===== CARTE DU VOYAGE v4 : carte stylisée des 12 départements (zones de Voronoï pondérées autour des chefs-lieux) ===== */
+const WG=[.38,.6,.6,.6,.55,.5,.7,.9,.9,1.4,1,1.3];
+function voro(cw,ch,X,Y){
+ const m=document.createElement('canvas');m.width=cw;m.height=ch;const q=m.getContext('2d');q.beginPath();GEO.forEach((p,i)=>i?q.lineTo(X(p[0]),Y(p[1])):q.moveTo(X(p[0]),Y(p[1])));q.closePath();q.fill();
+ const mk=q.getImageData(0,0,cw,ch).data,L=new Int8Array(cw*ch).fill(-1),cp=CAP.map(c=>[X(c[0]),Y(c[1])]),sx=new Float64Array(12),sy=new Float64Array(12),nn=new Float64Array(12);
+ for(let y=0;y<ch;y++)for(let x=0;x<cw;x++){const o=y*cw+x;if(mk[o*4+3]<128)continue;let b=0,bd=1e18;for(let i=0;i<12;i++){const dx=x-cp[i][0],dy=y-cp[i][1],d=(dx*dx+dy*dy)/(WG[i]*WG[i]);if(d<bd){bd=d;b=i}}L[o]=b;sx[b]+=x;sy[b]+=y;nn[b]++}
+ return{L,cen:cp.map((c,i)=>nn[i]>20?{x:sx[i]/nn[i],y:sy[i]/nn[i]}:{x:c[0],y:c[1]})}}
+let MP=null;
+function mapBuild(cw,ch,s,u,sig){
+ const X=l=>(l-.55)*s,Y=l=>(12.75-l)*s,cv=document.createElement('canvas');cv.width=cw;cv.height=ch;const g=cv.getContext('2d');
+ let lg=g.createLinearGradient(0,0,0,ch);lg.addColorStop(0,'#efe0b4');lg.addColorStop(1,'#dcc690');g.fillStyle=lg;g.fillRect(0,0,cw,ch);
+ for(let i=0;i<700;i++){g.fillStyle='rgba(120,90,40,'+(Math.random()*.06)+')';g.beginPath();g.arc(Math.random()*cw,Math.random()*ch,Math.random()*3*u,0,7);g.fill()}
+ g.strokeStyle='rgba(90,64,30,.10)';g.lineWidth=u;for(let la=6;la<=12;la++){g.beginPath();g.moveTo(0,Y(la));g.lineTo(cw,Y(la));g.stroke()}for(let lo=1;lo<=4;lo++){g.beginPath();g.moveTo(X(lo),0);g.lineTo(X(lo),ch);g.stroke()}
+ const cy=Y(6.28),cy2=Y(6.4),x1=X(1.62),x2=X(2.7);
+ const og=g.createLinearGradient(0,cy2-20*u,0,ch);og.addColorStop(0,'#5cc0d0');og.addColorStop(.35,'#2a89b0');og.addColorStop(1,'#0e4a74');
+ g.beginPath();g.moveTo(-5,cy);g.lineTo(x1,cy);g.lineTo(x2,cy2);g.lineTo(cw+5,cy2);g.lineTo(cw+5,ch+5);g.lineTo(-5,ch+5);g.closePath();g.fillStyle=og;g.fill();
+ g.strokeStyle='rgba(255,255,255,.22)';g.lineWidth=1.3*u;for(let k=1;k<=9;k++){g.beginPath();for(let x=0;x<=cw;x+=8){const f=Math.min(1,Math.max(0,(x-x1)/(x2-x1))),yb=cy+(cy2-cy)*f+k*13*u+Math.sin(x*.04+k*1.9)*2.2*u;x?g.lineTo(x,yb):g.moveTo(x,yb)}g.stroke()}
+ g.strokeStyle='rgba(255,255,255,.85)';g.lineWidth=3*u;g.beginPath();g.moveTo(-5,cy);g.lineTo(x1,cy);g.lineTo(x2,cy2);g.lineTo(cw+5,cy2);g.stroke();
+ g.textAlign='center';g.fillStyle='rgba(90,64,30,.6)';g.font='italic 700 '+(13*u)+'px Georgia,serif';
+ [['Togo',.95,8.3],['Nigeria',3.72,8.2],['Niger',2.2,12.62],['Burkina Faso',1.02,11.85]].forEach(a=>g.fillText(a[0],X(a[1]),Y(a[2])));
+ g.fillStyle='rgba(255,255,255,.85)';g.fillText('Golfe de Guinée',X(1.1),Y(5.78));
+ const V=voro(cw,ch,X,Y),L=V.L,id=g.getImageData(0,0,cw,ch),px=id.data;
+ const GR=[[52,152,92],[84,174,100],[40,130,80],[112,188,108]],LK=[[216,202,168],[205,190,152]],CU=[[246,186,50],[255,205,90]];
+ for(let y=0;y<ch;y++)for(let x=0;x<cw;x++){const o=y*cw+x,b=L[o];if(b<0)continue;
+  const st=b<S.dep?0:b==S.dep?1:2,c=st==0?GR[b%4]:st==1?CU[(x+y>>5)&1]:LK[b&1];
+  let k=1+.07*Math.sin(x*.05/u+y*.037/u)+.1*(.5-y/ch);if(st==2&&((x+y)/u|0)%8<2)k*=.93;
+  let r=c[0]*k,gg=c[1]*k,bb=c[2]*k;
+  const rr=x+1<cw?L[o+1]:b,dd=y+1<ch?L[o+cw]:b;
+  if((rr>=0&&rr!==b)||(dd>=0&&dd!==b)){r=r*.35+60*.65;gg=gg*.35+38*.65;bb=bb*.35+20*.65}
+  const p=o*4;px[p]=r;px[p+1]=gg;px[p+2]=bb;px[p+3]=255}
+ g.putImageData(id,0,0);
+ g.beginPath();GEO.forEach((p,i)=>i?g.lineTo(X(p[0]),Y(p[1])):g.moveTo(X(p[0]),Y(p[1])));g.closePath();g.lineJoin='round';g.strokeStyle='rgba(255,255,255,.55)';g.lineWidth=7*u;g.stroke();g.strokeStyle='#4a2a10';g.lineWidth=2.6*u;g.stroke();
+ const R=20*u;g.save();g.translate(X(3.62),Y(5.95));g.fillStyle='rgba(255,248,230,.92)';g.strokeStyle='#4a2a10';g.lineWidth=2*u;g.beginPath();g.arc(0,0,R,0,7);g.fill();g.stroke();g.fillStyle='#d9482b';g.beginPath();g.moveTo(0,-R*.85);g.lineTo(R*.28,0);g.lineTo(-R*.28,0);g.fill();g.fillStyle='#4a2a10';g.beginPath();g.moveTo(0,R*.85);g.lineTo(R*.28,0);g.lineTo(-R*.28,0);g.fill();g.font='800 '+(10*u)+'px sans-serif';g.textAlign='center';g.fillText('N',0,-R-6*u);g.restore();
+ return{cv,cen:V.cen,X,Y,s,cw,ch,u,sig}}
+function mapSetup(){const w=$('mw');if(!w)return;const css=Math.min(w.clientWidth||340,440),u=Math.min(devicePixelRatio||1,1.5),cw=Math.round(css*u),s=cw/3.45,ch=Math.round(7.25*s),mc=$('mc'),mf=$('mf');
+ mc.width=mf.width=cw;mc.height=mf.height=ch;mc.style.cssText='display:block;width:100%;height:auto';mf.style.cssText='position:absolute;left:0;top:0;width:100%;height:100%';
+ const sig=cw+'|'+S.dep;if(!MP||MP.sig!==sig)MP=mapBuild(cw,ch,s,u,sig);mc.getContext('2d').drawImage(MP.cv,0,0);MP.mf=mf}
+const MLB=[[0,2.5,5.62,'center'],[1,1.9,5.98,'center'],[2,2.92,6.55,'left'],[3,2.95,7.25,'left'],[4,1.45,6.55,'right'],[5,1.45,7.05,'right']];
+function mapFx(ts){const m=MP;if(!m||!m.mf||!m.mf.isConnected||!$('map').classList.contains('on'))return;
+ const g=m.mf.getContext('2d'),u=m.u,cw=m.cw,ch=m.ch,cen=m.cen,tm=ts/1000,cur=Math.min(S.dep,11);g.clearRect(0,0,cw,ch);g.lineCap='round';g.lineJoin='round';
+ const route=(a,b)=>{g.beginPath();for(let i=a;i<=b;i++)i>a?g.lineTo(cen[i].x,cen[i].y):g.moveTo(cen[i].x,cen[i].y)};
+ route(0,11);g.setLineDash([2*u,8*u]);g.strokeStyle='rgba(58,36,18,.55)';g.lineWidth=3*u;g.stroke();
+ if(cur>0){route(0,cur);g.setLineDash([11*u,7*u]);g.lineDashOffset=-tm*26*u;g.strokeStyle='rgba(255,255,255,.95)';g.lineWidth=5.5*u;g.stroke();g.strokeStyle='#d9482b';g.lineWidth=3*u;g.stroke()}
+ g.setLineDash([]);g.lineDashOffset=0;
+ const anc=MLB.map(a=>({i:a[0],x:m.X(a[1]),y:m.Y(a[2]),al:a[3]}));
+ g.strokeStyle='rgba(58,36,18,.6)';g.lineWidth=1.4*u;anc.forEach(a=>{const c=cen[a.i];g.beginPath();g.moveTo(c.x,c.y);g.lineTo(a.x+(a.al=='left'?-3*u:a.al=='right'?3*u:0),a.y+(a.al=='center'?(a.y>c.y?-7*u:7*u):0));g.stroke()});
+ for(let i=0;i<12;i++){const c=cen[i],done=i<S.dep,now=i==S.dep,lk=i>S.dep,r=(now?13:11)*u;
+  if(now){const k=(tm*1.4)%1;g.beginPath();g.arc(c.x,c.y,r+k*16*u,0,7);g.strokeStyle='rgba(217,72,43,'+(.7*(1-k))+')';g.lineWidth=3*u;g.stroke()}
+  g.save();g.shadowColor='rgba(0,0,0,.4)';g.shadowBlur=6*u;g.beginPath();g.arc(c.x,c.y,r,0,7);g.fillStyle=done?'#2f9e5b':now?'#f2b630':'#9a8a68';g.fill();g.restore();
+  g.lineWidth=2.5*u;g.strokeStyle='#fff8e6';g.stroke();g.fillStyle=done?'#fff':'#3a2412';g.textAlign='center';g.textBaseline='middle';
+  if(lk){g.font=(11*u)+'px serif';g.fillText('🔒',c.x,c.y+u)}else{g.font='800 '+(12*u)+'px "Trebuchet MS",sans-serif';g.fillText(done?'✓':String(i+1),c.x,c.y+u)}}
+ const txt=(s,x,y,al,a)=>{g.textAlign=al;g.textBaseline='middle';g.globalAlpha=a;g.lineWidth=3.4*u;g.strokeStyle='rgba(255,248,230,.95)';g.strokeText(s,x,y);g.fillStyle='#3a2412';g.fillText(s,x,y);g.globalAlpha=1};
+ g.font='800 '+(12*u)+'px "Trebuchet MS",sans-serif';
+ anc.forEach(a=>txt(D[a.i].n,a.x,a.y,a.al,a.i>S.dep?.75:1));
+ for(let i=6;i<12;i++){const c=cen[i];txt(D[i].n,c.x,c.y+21*u,'center',i>S.dep?.75:1)}
+ const c=cen[cur];g.font=(24*u)+'px serif';g.textAlign='center';g.textBaseline='middle';g.fillText('🛵',c.x,c.y-27*u+Math.sin(tm*4)*3*u)}
+function drawMap(){const tot=D.reduce((n,d)=>n+d.s.length,0),got=Object.keys(S.got).length;
+ let h=`<div class="mapH"><div class="pagne"></div><h2 class="hw">🗺️ Carte du voyage</h2><div class="hw" style="font-size:13px">Bénin · ${S.dep}/12 départements terminés · ${got}/${tot} 📸</div><div class="bar"><i style="width:${(got/tot*100).toFixed(1)}%"></i></div></div><div class="mapW" id="mw"><canvas id="mc"></canvas><canvas id="mf"></canvas></div><div class="leg"><span><i style="background:#3fa05f"></i>Terminé</span><span><i style="background:#f2b630"></i>En cours</span><span><i style="background:#cdbf9c"></i>À découvrir</span></div><p style="opacity:.7;font-size:12px;margin:6px 0 10px">Carte stylisée : les limites des départements sont approximatives.</p>`;
+ D.forEach((d,i)=>{const lk=i>S.dep,done=i<S.dep,cur=i==S.dep,n=d.s.length,g=d.s.filter(s=>S.got[s.id]).length;
+  h+=`<div class="dc${lk?' lock':''}${cur?' cur':''}"${lk?'':` onclick="openDep(${i})"`}><div class="nb" style="background:${done?'#2f9e5b':cur?'#f2b630':'#bfae86'};color:${done?'#fff':'#3a2412'}">${done?'✓':lk?'🔒':i+1}</div><div style="flex:1;min-width:0"><b>${ICO[i]} ${d.n}</b><small>${d.v}</small><div class="bar"><i style="width:${g/n*100}%"></i></div></div><div class="cnt">${g}/${n} 📸</div>${cur?'<button class="btn" style="padding:6px 12px;min-height:40px" onclick="event.stopPropagation();show(\'\')">Rouler</button>':''}</div>`});
+ $('map').innerHTML=h+'<br><button class="btn" onclick="show(\'\')">← Retour</button><br><br>';requestAnimationFrame(mapSetup)}
+/* Carnet : par département, puis par zone (un lieu = une zone, dans l'ordre de la route) */
+/* ===== PHOTOS RÉELLES (liens Google) =====
+ Colle un lien par souvenir, avec l'id du lieu : "département-lieu" (ex. "0-1" = Esplanade de l'Amazone).
+ Liens acceptés : Google Drive (partagé « Tous ceux qui ont le lien »), lh3.googleusercontent.com, Google Photos/Sites en lien direct d'image. */
+const PHOTOS={
+ /* "0-0":"https://drive.google.com/file/d/XXXXXXXX/view?usp=sharing", */
+};
+function gimg(u){if(!u)return'';const m=u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=)([\w-]+)/);return m?'https://lh3.googleusercontent.com/d/'+m[1]+'=w1000':u}
+D.forEach(d=>d.s.forEach(s=>{if(PHOTOS[s.id]){s.photo=PHOTOS[s.id];new Image().src=gimg(s.photo)}}));
+const IM={};function pim(s){if(!s.photo)return null;let o=IM[s.id];if(!o||o.u!==s.photo){o=IM[s.id]={u:s.photo,i:new Image()};o.i.referrerPolicy='no-referrer';o.i.src=gimg(s.photo)}return o.i.complete&&o.i.naturalWidth?o.i:null}
+/* ===== PHOTOS AUTOMATIQUES (Wikimedia Commons) =====
+ Chaque lieu cherche tout seul une vraie photo sur Internet ; le résultat est mis en cache dans le navigateur. */
+const QPH={"0-0":"Cadjehoun airport Cotonou","0-1":"Amazon Monument Cotonou","0-8":"Boulevard de la Marina Cotonou"};
+let PC={};try{PC=JSON.parse(localStorage.getItem('vbph3')||'{}')}catch(e){}
+const BAD=/map|carte|flag|drapeau|logo|coat|locator|blason|\.svg|\.pdf|\.tif/i;
+function qOf(s,d){return QPH[s.id]||(s.n.replace(/\(.*?\)/g,' ').replace(/[–·\/,]/g,' ').replace(/\s+/g,' ').trim()+' Bénin')}
+function setPh(s,o){s.photo=o.u;s.credit=o.c||'Wikimedia Commons'}
+const PS={ok:0,no:0,err:''},BADU=new Set();
+async function jget(u){const r=await fetch(u);if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}
+async function findPhoto(q,ok,pf){
+ try{const j=await jget('https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrnamespace=6&gsrlimit=12&gsrsearch='+encodeURIComponent(q+' filetype:bitmap')+'&prop=imageinfo&iiprop=url|mime|extmetadata&iiurlwidth=900');
+ const p=Object.values((j.query||{}).pages||{}).sort((x,y)=>x.index-y.index);
+ const g=x=>{const ii=x.imageinfo&&x.imageinfo[0];return ii&&ii.thumburl&&/jpeg|png/.test(ii.mime||'')&&!BAD.test(x.title)&&!BADU.has(ii.thumburl)&&(!ok||ok(x.title))};const f=(pf&&p.find(x=>g(x)&&pf(x.title)))||p.find(g);
+ if(f){const ii=f.imageinfo[0],m=ii.extmetadata||{},au=((m.Artist||{}).value||'').replace(/<[^>]*>/g,'').trim();return{u:ii.thumburl,c:'Wikimedia Commons'+(au?' · '+au.slice(0,40):'')}}}catch(e){PS.err=String(e.message||e)}
+ if(ok)return null;for(const lg of ['fr','en']){try{const j=await jget('https://'+lg+'.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=4&gsrsearch='+encodeURIComponent(q)+'&prop=pageimages&piprop=thumbnail&pithumbsize=900');
+ const p=Object.values((j.query||{}).pages||{}).sort((x,y)=>x.index-y.index).find(x=>x.thumbnail&&x.thumbnail.source&&!BAD.test(x.thumbnail.source)&&!BADU.has(x.thumbnail.source));
+ if(p)return{u:p.thumbnail.source,c:'Wikipédia ('+lg+') · '+p.title}}catch(e){PS.err=String(e.message||e)}}
+ return null}
+const APOK=t=>/airport|a[ée]roport|cadjehoun|gantin|cotonou/i.test(t)&&!/trash|garbage|waste|rubbish|litter|d[ée]chet|ordure|pollut|dirty|sale|crash|accident|fire|burn|map|plan\b/i.test(t),APPF=t=>/aircraft|airplane|plane|avion|airlines|airbus|boeing|embraer|terminal|apron|tarmac|runway|piste/i.test(t);
+async function airPhoto(){for(const q of ['Cardinal Bernardin Gantin International Airport aircraft','Cotonou airport aircraft apron','Cotonou airport terminal','Cadjehoun airport Cotonou','Aéroport international Cardinal Bernardin Gantin']){const o=await findPhoto(q,APOK,APPF);if(o)return o}return null}
+async function autoPhoto(s,d){if(s.photo){PS.ok++;return}const c=PC[s.id];if(c&&!BADU.has(c.u)){setPh(s,c);PS.ok++;return}
+ let o=s.id==='0-0'?await airPhoto():null;if(!o&&s.id!=='0-0')o=await findPhoto(qOf(s,d));
+ if(!o)o=await findPhoto(s.n.split(/[–·]/)[0].trim()+' Bénin');
+ if(!o){o=await findPhoto(d.n+' Bénin');if(o)o.c='Illustration du département · '+o.c}
+ if(o){PC[s.id]=o;try{localStorage.setItem('vbph3',JSON.stringify(PC))}catch(e){}setPh(s,o);PS.ok++}else PS.no++}
+let rt=0,RF=null;
+async function loadPhotos(){if(rt)return;rt=1;try{PS.ok=0;PS.no=0;const all=[];D.forEach((d,i)=>d.s.forEach(s=>all.push([s,d])));all.sort((a,b)=>Math.abs(D.indexOf(a[1])-S.dep)-Math.abs(D.indexOf(b[1])-S.dep));let k=0;await Promise.all(Array.from({length:5},async()=>{while(k<all.length){const[s,d]=all[k++];await autoPhoto(s,d);if(s.photo)pim(s)}}))}finally{rt=0}
+ const bk=$('book');if(bk&&bk.classList.contains('on')){const y=bk.scrollTop;drawBook();bk.scrollTop=y}
+ if(RF&&RF.chk()&&$('page').classList.contains('on')){const f=RF.go;RF=null;f()}}
+function retryPh(){rt=0;loadPhotos();toast('🔄 Recherche des photos…')}
+function photoFail(id){const[i,j]=id.split('-').map(Number),s=D[i].s[j];if(s.photo)BADU.add(s.photo);delete PC[id];s.photo=null;try{localStorage.setItem('vbph3',JSON.stringify(PC))}catch(e){}setTimeout(loadPhotos,500)}
+setInterval(()=>{if(D.some(d=>d.s.some(s=>!s.photo)))loadPhotos()},25000);addEventListener('online',()=>loadPhotos());
+/* ===== VIDÉOS (Wikimedia Commons, jouées directement) + recherches YouTube / Google / Instagram ===== */
+let PV={};try{PV=JSON.parse(localStorage.getItem('vbvid')||'{}')}catch(e){}
+async function findVideo(q,ex,ok){try{const j=await jget('https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrnamespace=6&gsrlimit=10&gsrsearch='+encodeURIComponent(q+' filetype:video')+'&prop=videoinfo&viprop=url|mime|derivatives&viurlwidth=800');
+ const p=Object.values((j.query||{}).pages||{}).sort((x,y)=>x.index-y.index);
+ for(const x of p){const v=(x.videoinfo||[])[0];if(!v||!v.url||(ex&&ex.has(v.url))||(ok&&!ok(x.title.replace(/^File:/,""))))continue;
+  const dv=(v.derivatives||[]).filter(z=>z.src&&/video\//.test(z.type||'')).sort((a,b)=>(/mp4/.test(b.type)-/mp4/.test(a.type))||(Math.abs((a.width||0)-480)-Math.abs((b.width||0)-480))).slice(0,5).map(z=>({src:z.src,type:z.type}));
+  return{t:x.title.replace(/^File:/,'').replace(/\.\w+$/,'').replace(/_/g,' '),pg:'https://commons.wikimedia.org/wiki/'+encodeURIComponent(x.title.replace(/ /g,'_')),u:v.url,th:v.thumburl||'',s:dv}}}catch(e){PS.err=String(e.message||e)}
+ return null}
+async function loadVid(key,qs,gen,ex,ok){if(PV[key])return PV[key];for(let k=0;k<qs.length;k++){const v=await findVideo(qs[k],ex,ok);if(v){v.g=k>=gen;PV[key]=v;try{localStorage.setItem('vbvid',JSON.stringify(PV))}catch(e){}return v}}return null}
+function vidHTML(v,auto){const src=v.s.map(x=>`<source src="${x.src}" type="${x.type.replace(/"/g,'&quot;')}">`).join('')+`<source src="${v.u}">`;
+ return `<video controls ${auto?'autoplay muted ':''}playsinline preload="metadata" poster="${v.th}" style="width:100%;border-radius:8px;background:#000;aspect-ratio:16/9">${src}</video><div class="hw" style="font-size:12px;opacity:.8;margin-top:4px">🎬 <a target="_blank" rel="noopener" href="${v.pg}">${v.t}</a> · Wikimedia Commons${v.g?' · vidéo plus générale sur le Bénin (pas de vidéo plus précise trouvée)':''}</div>`}
+const tagOf=n=>n.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+function vlinks(q,tag){const e=encodeURIComponent(q),a='class="btn" target="_blank" rel="noopener"';return `<a ${a} href="https://www.youtube.com/results?search_query=${e}">▶ YouTube</a><a ${a} href="https://www.google.com/search?tbm=vid&q=${e}">🔎 Google</a><a ${a} href="https://www.instagram.com/explore/tags/${tag}/">📷 Instagram</a>`}
+const nm=x=>' '+x.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim()+' ';
+function okV(i){const d=D[i],ks=[d.n,...d.v.split(' · '),...d.s.map(x=>x.n.split(/[–·]/)[0].trim())].map(nm).filter(k=>k.length>3);return t=>{const T=nm(t);return ks.some(k=>T.includes(k))}}
+function vl2(fr,en,tag){const a='class="btn" target="_blank" rel="noopener"',y=q=>'https://www.youtube.com/results?sp=EgIQAQ%253D%253D&search_query='+encodeURIComponent(q);return `<a ${a} href="${y(fr)}">▶ Vlogs YouTube</a><a ${a} href="${y(en)}">▶ Travel vlog (EN)</a><a ${a} href="https://www.google.com/search?tbm=vid&q=${encodeURIComponent(fr)}">🔎 Google</a><a ${a} href="https://www.instagram.com/explore/tags/${tag}/">📷 Instagram</a>`}
+/* Vidéos YouTube vérifiées à intégrer : DV={"0":[["ID_YOUTUBE","Titre"]]} (index du département) */
+const DV={};
+const TP=[['🏘️','Les localités','localités à visiter'],['🍲','Ce qu\'on y mange','cuisine plats typiques'],['🏺','Objets à découvrir','artisanat objets traditionnels'],['📍','Lieux importants','lieux touristiques importants'],['🗣️','Langue parlée','langue parlée']];
+function grid(i){const d=D[i];let h='<div class="pg2">';d.s.forEach((s,j)=>{const ok=S.got[s.id],r=((i+j)%5-2)*1.6;
+ h+=ok?`<div class="pol hw${j==0?' big':''}" style="--rot:${r}deg" onclick="openPage('${s.id}')"><div class="im">${s.photo?photoTag(s,''):ICO[i]}</div>${s.n}<br><span class="stamp">${d.n}</span></div>`:`<div class="pol lk hw" style="--rot:${r}deg"><div class="im">❔</div>???</div>`});return h+'</div>'}
+let cd=-1,cs=0;
+function openDep(i,st){cd=i;cs=st||0;const d=D[i],n=d.s.length,g=d.s.filter(s=>S.got[s.id]).length,ph=d.s.find(x=>x.photo),pg='<div class="pagne"></div>';
+ const nv=`<button class="btn" onclick="${cs?`openDep(${i},0)`:`show('book')`}">← ${cs?'Couverture':'Carnet'}</button><button class="btn" onclick="show('')">✕ Jeu</button>`;
+ if(!cs){$('page').innerHTML=nv+`<div class="cov dcov" style="margin-top:12px">${pg}<div class="dimg" style="height:200px;cursor:pointer" onclick="openDep(${i},1)">${ph?photoTag(ph,'width:100%;height:100%;object-fit:cover'):'<span style="font-size:64px">'+ICO[i]+'</span>'}</div><h2 class="hw" style="margin:6px 0 0">${ICO[i]} ${i+1}. ${d.n}</h2><div class="hw">${d.v}</div><div class="hw" style="font-size:12px;margin:4px 0 10px">${(g==n?'✅ ':'')+g+'/'+n} 📸 souvenirs</div><button class="btn" onclick="openDep(${i},1)">▶ Ouvrir · vidéo du département</button>${pg}</div>`}
+ else{const tg=tagOf(d.n);$('page').innerHTML=nv+`<div class="sheet"><h2 class="hw">${ICO[i]} ${d.n}</h2><small>${d.v}</small><div style="font-size:11px;opacity:.7;margin:4px 0">🎬 Seules les vidéos Commons dont le titre nomme ce département ou ses localités sont affichées. Les boutons ▶ ouvrent les vlogs YouTube de gens qui découvrent la région.</div>${(DV[i]||[]).map(x=>`<div class="tvb"><b>▶ ${x[1]}</b><iframe style="width:100%;aspect-ratio:16/9;border:0;border-radius:8px" src="https://www.youtube.com/embed/${x[0]}" allowfullscreen loading="lazy"></iframe><a class="btn" target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=${x[0]}">Ouvrir sur YouTube</a></div>`).join('')}${TP.map((t,k)=>`<div class="tvb"><b>${t[0]} ${t[1]}</b><div id="tv${k}" class="ph" style="height:auto;min-height:${k?60:180}px">⏳ Recherche de la vidéo…</div>${vl2('vlog je découvre '+d.n+' Bénin '+d.v.replace(/ · /g,' ')+' '+t[2],'travel vlog '+d.n+' Benin '+d.v.replace(/ · /g,' '),tg)}</div>`).join('')}</div><div class="sheet"><div class="dh"><h3 class="hw">📸 Souvenirs</h3><span class="cnt">${g}/${n}</span></div>${grid(i)}</div><br>`;topicVids(i)}
+ RF=cs==0&&!ph?{chk:()=>d.s.some(x=>x.photo),go:()=>openDep(i,0)}:null;if(!ph)loadPhotos();show('page');$('page').scrollTop=0;{const e=$('page');e.classList.remove('turn');void e.offsetWidth;e.classList.add('turn')}}
+async function topicVids(i){const d=D[i],cm=d.v.split(' · ').slice(0,2),used=new Set(),ok=okV(i);
+const W=['','cuisine nourriture food','artisanat masque objets','palais musée site marché','langue chant danse'];
+for(let k=0;k<5;k++){const qs=[d.n+' Bénin '+W[k],...cm.map(c=>c+' '+W[k])],v=await loadVid('e'+i+'t'+k,qs,99,used,ok);if(v)used.add(v.u);const e=$('tv'+k);if(!e||cd!==i||cs!==1)return;
+ if(v){e.className='';e.style.minHeight='';e.innerHTML=vidHTML(v,k==0)}else{e.style.minHeight='';e.innerHTML='Aucune vidéo Commons assez précise pour ce thème : regarde les vlogs ci-dessous.'}}}
+
+function nav(id,d){const a=[];D.forEach(x=>x.s.forEach(q=>{if(S.got[q.id])a.push(q.id)}));const i=a.indexOf(id);if(i<0)return;openPage(a[(i+d+a.length)%a.length])}
+function photoTag(s,st){return s.photo?`<img src="${gimg(s.photo)}" alt="${s.n}" referrerpolicy="no-referrer" loading="lazy" style="${st}" onerror="this.outerHTML='<span>📷</span>';photoFail('${s.id}')">`:''}
+function drawBook(){const tot=Object.keys(S.got).length;let h=`<button class="btn" style="position:sticky;top:0;z-index:2" onclick="show('')">✕ Fermer · retour au jeu</button><div class="cov" style="margin-top:10px"><div class="pagne"></div><h2 class="hw" style="margin:4px">📖 Carnet de voyage</h2><div class="hw">Bénin · ${tot} souvenir${tot>1?'s':''}</div><div style="font-size:11px;opacity:.7">Photos trouvées : ${PS.ok}/${D.reduce((n,x)=>n+x.s.length,0)}${PS.no?' · sans résultat : '+PS.no:''}${PS.err?' · erreur réseau : '+PS.err:''}</div><div class="pagne"></div></div>`;
+D.forEach((d,i)=>{const lk=i>S.dep,n=d.s.length,g=d.s.filter(s=>S.got[s.id]).length,ph=d.s.find(x=>x.photo),pg='<div class="pagne"></div>';
+h+=lk?`<div class="cov dcov lock">${pg}<h3 class="hw" style="margin:4px">🔒 ${i+1}. ???</h3><div class="hw" style="font-size:12px">${n} pages · à découvrir en route</div>${pg}</div>`:`<div class="cov dcov" onclick="openDep(${i})" style="cursor:pointer">${pg}<div class="dimg">${ph?photoTag(ph,'width:100%;height:100%;object-fit:cover'):'<span style="font-size:48px">'+ICO[i]+'</span>'}</div><h2 class="hw" style="margin:6px 0 0">${ICO[i]} ${i+1}. ${d.n}</h2><div class="hw">${d.v}</div><div class="hw" style="font-size:12px">${(g==n?'✅ ':'')+g+'/'+n} 📸 · 🎬 vidéo</div>${pg}</div>`});
+$('book').innerHTML=h+'<br><button class="btn" onclick="retryPh()">🔄 Recharger les photos</button><br><br>';}
+let pend=false;function cont(){show('');if(pend){pend=false;done()}}function srcs(id){const[i,j]=id.split('-').map(Number),s=D[i].s[j];alert(s.sources.length?s.sources.map(x=>x.t+' : '+x.u).join('\n'):'Aucune source vérifiée enregistrée pour l\'instant.')}
+function openPage(id,c){const[i,j]=id.split('-').map(Number),d=D[i],s=d.s[j];
+const q=encodeURIComponent(s.n+' '+d.n+' Bénin');
+$('page').innerHTML=`${c?'<button class="btn" onclick="cont()">▶ Continuer le voyage</button> ':''}<button class="btn" onclick="show('book')">← Carnet</button><button class="btn" onclick="nav('${id}',-1)">◀</button><button class="btn" onclick="nav('${id}',1)">▶</button><button class="btn" onclick="show('')">✕ Jeu</button><div class="sheet"><h2 class="hw">${s.n}</h2><small>Département : ${d.n} · Zone ${j+1}</small>
+<div class="pol hw" style="--rot:-2deg;cursor:default"><div class="im" style="height:auto;min-height:150px">${s.photo?photoTag(s,'width:100%;max-height:260px;object-fit:cover'):'<span style="font-size:46px">'+ICO[i]+'<br><small>photo en chargement…</small></span>'}</div>${s.facts?s.facts[0].slice(0,80)+'…':s.n}</div>${s.photo?`<div class="hw" style="font-size:12px;margin-top:8px;opacity:.75">📷 Photo : ${s.credit||'Wikimedia Commons'}</div>`:''}
+${s.facts?'<h3>À savoir</h3><ul>'+s.facts.map(f=>'<li>'+f+'</li>').join('')+'</ul>':'<p>'+(s.story||'<i>Récit à venir : emplacement prêt pour une histoire vérifiée.</i>')+'</p>'}${s.dist&&s.dist.length?'<h3>📏 Distances et repères</h3><ul>'+s.dist.map(f=>'<li>'+f+'</li>').join('')+'</ul>':''}${s.sources.length?'<h3>🔎 Sources</h3><ul>'+s.sources.map(x=>'<li><a target="_blank" rel="noopener" href="'+x.u+'">'+x.t+'</a></li>').join('')+'</ul>':''}
+<p>${s.anecdote||'<i>Anecdote culturelle ou historique à venir.</i>'}</p>
+${s.video?`<iframe style="width:100%;aspect-ratio:16/9;border:0" src="https://www.youtube.com/embed/${s.video}" allowfullscreen></iframe><a class="btn" target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=${s.video}">▶ Ouvrir sur YouTube</a>`:''}<div id="sv" class="ph" style="height:auto;min-height:80px">⏳ Recherche d'une vidéo du lieu…</div><div style="margin:4px 0"><b>🎬 Vidéos réelles de ce lieu</b><br>${vl2('vlog je découvre '+s.n+' '+d.n+' Bénin','travel vlog '+s.n+' Benin',tagOf(d.n))}</div><div style="margin:4px 0"><b>🍲 Ce qu'on y mange</b><br>${vl2('vlog '+s.n+' '+d.n+' Bénin cuisine manger','food vlog '+s.n+' Benin',tagOf(d.n))}</div>
+<a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${s.ll?encodeURIComponent(s.ll):q}">📍 Voir sur Google Maps</a>
+<button class="btn" onclick="srcs('${id}')" title="${(s.sources.length?s.sources.map(x=>x.t+' : '+x.u).join('\n'):'Aucune source vérifiée enregistrée pour l\'instant. Elles seront ajoutées avec le récit.')})">✔ Sources vérifiées</button></div><br><br>`;RF=s.photo?null:{chk:()=>s.photo,go:()=>openPage(id,c)};if(!s.photo)loadPhotos();show('page');$('page').scrollTop=0;loadVid('p'+id,[qOf(s,d),s.n.split(/[–·]/)[0].trim()+' Bénin'],9,null,okV(i)).then(v=>{const e=$('sv');if(!e)return;if(v&&!v.g){e.className='';e.style.minHeight='';e.innerHTML=vidHTML(v,0)}else e.remove()})}
+/* ===== JEU : UNE SEULE ROUTE =====
+ Les lieux ne sont jamais sur une autre route : ils apparaissent au bord de la même route, à gauche ou à droite.
+ Un lieu raté revient plus loin. La sortie n'apparaît que lorsque tous les lieux du département sont visités. */
+const cv=$('c'),cx=cv.getContext('2d');let W,H;
+function rs(){const r=cv.getBoundingClientRect(),p=Math.min(devicePixelRatio||1,2);W=cv.width=r.width*p;H=cv.height=r.height*p}
+addEventListener('resize',rs);rs();
+let px=0,tx=0,t=0,items=[],deco=[],fx=[],got=0,speed=.35,obsT=6,hits=0,rst=false,exitOn=false,jn=4;
+const WARN_M=90,GAP=7,BOOST_T=3.2;const DECO_K=['T','T','P','P','B','B','H','G','G','G','F','F','C','A'];let mode='run',fallT=0,fallDir=1,boost=0,vm=1,exDist=999;
+const hor=()=>H*.28;
+const cur=()=>Math.sin(t*.35)*.6+Math.sin(t*.13)*.3;
+function proj(z,x){return{x:W/2+x*W*.42*(.15+z*1.05)*1.1+cur()*W*.45*(1-z)*(1-z),y:H*.3+z*H*.55,s:.15+z*1.05}}
+const PRE=["au ","dans l'","dans l'","au ","au ","au ","au ","dans les ","dans la ","au ","dans l'","dans l'"];
+const plTxt=i=>'Nous sommes '+PRE[i]+D[i].n;
+function plaque(z){deco.push({z:z||0,x:0,k:'p',i:Math.min(S.dep,11)})}
+function depNow(){return D[Math.min(S.dep,11)]}
+function pal(){const k=S.dep/11;return{g:`hsl(${110-k*55},${55-k*10}%,${42+k*8}%)`,sky:`hsl(${200-k*10},70%,${78+k*5}%)`,road:k<.5?'#b5683a':'#c98d4e'}}
+function spawn(){const d=depNow();const need=d.s.filter(s=>!S.got[s.id]);
+if(jn<=0&&!items.some(i=>i.k=='L'||i.k=='x')){
+if(need.length){jn=99;items.push({z:0,x:0,k:'L',it:need[0],sd:sideOf(need[0]),dp:Math.min(S.dep,11)})}
+else if(!exitOn){exitOn=true;items.push({z:-.6,x:0,k:'x',i:Math.min(S.dep,11),t1:'Sortie du département',t2:S.dep<11?'vers '+D[S.dep+1].n:'Fin du voyage'})}}
+if(obsT<=0&&!items.some(i=>i.z<.4)){obsT=7+Math.random()*5;items.push({z:0,x:[-.6,0,.6][Math.random()*3|0],k:'o'})}for(let k=0;k<5;k++)if(Math.random()<.8)deco.push({z:-Math.random()*.12,x:(Math.random()<.5?-1:1)*(1.15+Math.random()*1.1),e:DECO_K[Math.random()*DECO_K.length|0]})}
+let sp=0,slow=0,sc=0;
+function hit(){if(mode!='run'||boost>0)return;mode='fall';fallT=0;fallDir=Math.random()<.5?-1:1;navigator.vibrate&&navigator.vibrate([150,70,260]);aie();hud()}
+function aie(){const e=$('aie');e.classList.remove('on');void e.offsetWidth;e.classList.add('on')}
+function flash(){const e=$('flash');e.classList.remove('on');void e.offsetWidth;e.classList.add('on')}
+function seedDeco(){for(let k=0;k<70;k++)deco.push({z:Math.random()*.95,x:(Math.random()<.5?-1:1)*(1.15+Math.random()*1.1),e:DECO_K[Math.random()*DECO_K.length|0]})}
+/* Après la chute : le jeu se met en veille, la moto est replacée devant la plaque du département */
+function toIdle(){mode='idle';items=[];deco=[];fx=[];px=tx=0;exitOn=false;jn=GAP;obsT=9;slow=0;boost=0;sp=0;plaque(.72);seedDeco();hud();
+$('goT').textContent='Aïe ! Retour à l’entrée : '+plTxt(Math.min(S.dep,11)).replace('Nous sommes ','');$('go').classList.add('on')}
+$('goB').addEventListener('click',()=>{$('go').classList.remove('on');mode='run'});
+function restart(){const d=depNow();d.s.forEach(s=>delete S.got[s.id]);hits=0;got=0;items=[];obsT=6;slow=0;exitOn=false;jn=3;save();plaque();hud();toast(`💥 3 obstacles !<br>Tu recommences ${d.n}`)}
+function update(dt){const run=mode=='run';t+=dt;if(run){obsT-=dt;jn-=dt}px+=(tx-px)*Math.min(1,dt*9);if(run){sp+=dt;if(sp>.7){sp=0;spawn()}}
+slow=Math.max(0,slow-dt);
+const ex=items.find(i=>i.k=='x');exDist=ex?(.9-ex.z)*70:999;
+let m=1;
+if(mode=='fall'){fallT+=dt;m=Math.max(0,1-fallT/.55);if(fallT>1.9)toIdle()}
+else if(mode=='idle')m=0;
+else{if(exDist<=WARN_M)m*=1-.4*(WARN_M-exDist)/WARN_M;if(boost>0){boost=Math.max(0,boost-dt);const b=boost/BOOST_T;m=1+3.2*b*b}}
+vm=m;const v=(speed+Math.min(.2,t*.002))*(slow>0?.35:1)*m;sc+=dt*v;items.forEach(i=>i.z+=dt*v);deco.forEach(i=>i.z+=dt*v);
+items=items.filter(i=>{
+if(i.k=='L'){if(run&&i.z>.8&&i.z<1&&px*i.sd>.35){collect(i.it);jn=GAP;return false}
+if(i.z>=1.05){jn=GAP*.5;toast('↩️ Raté ! Ce lieu revient plus loin sur la route');return false}return true}
+if(i.k=='x'){if(run&&i.z>.9){done();return false}return i.z<1.1}
+const nz=i.z>.86&&i.z<1;
+if(nz&&Math.abs(i.x-px)<.38){if(i.k=='o'&&run&&boost<=0){hit();return true}return i.k=='o'&&i.z<1.1}return i.z<1.1});
+deco=deco.filter(i=>i.z<1.1);fx.forEach(f=>{f.t+=dt;f.y-=dt*60});fx=fx.filter(f=>f.t<1);ui()}
+/* flèche clignotante, teinte violette, lignes de vitesse */
+function ui(){const A=$('arr'),on=mode=='run'&&exDist<=WARN_M;
+if(on!==A._on){A._on=on;A.classList.toggle('on',on);if(on)$('arrT').textContent=S.dep<11?'Nouveau département · '+D[S.dep+1].n:'Fin du voyage'}
+if(on){const mt='dans '+Math.max(0,Math.round(exDist/5)*5)+' m';if(mt!==A._m){A._m=mt;$('arrM').textContent=mt}}
+$('tint').style.opacity=on?(.3*(WARN_M-exDist)/WARN_M).toFixed(2):0;
+$('warp').style.opacity=boost>0?Math.min(1,boost/BOOST_T*1.5).toFixed(2):0}
+function collect(s){if(S.got[s.id])return;S.got[s.id]=1;const d=depNow();got=d.s.filter(x=>S.got[x.id]).length;
+const p=proj(.9,px);fx.push({k:'fly',t:0,x0:p.x,y0:p.y-H*.15,s});for(let k=0;k<14;k++)fx.push({x:p.x+(Math.random()-.5)*80,y:p.y-40,t:0,e:['✨','📸','⭐'][k%3]});
+navigator.vibrate&&navigator.vibrate(30);toast(`${s.photo?photoTag(s,'width:120px;height:80px;object-fit:cover;border:3px solid #fff;border-radius:4px;transform:rotate(-3deg)')+'<br>':''}📸 Souvenir : ${s.n}<br><small>Ajouté à ton carnet 📖</small>`);save();hud()}
+function done(){const d=depNow();if(!d.s.every(x=>S.got[x.id]))return;if(S.dep<11){S.dep++;hits=0;obsT=8;exitOn=false;jn=5;plaque(-.6);save();boost=BOOST_T;flash();navigator.vibrate&&navigator.vibrate([40,30,90]);toast(`⚡ Portail franchi !<br>✅ ${d.n} terminé · 🔓 ${D[S.dep].n}`);items=[];got=0;setTimeout(hud,50)}else{toast('🎉 Tour du Bénin terminé !<br>Ouvre ton carnet')}}
+function hud(){const d=depNow(),n=d.s.find(s=>!S.got[s.id]);got=d.s.filter(s=>S.got[s.id]).length;$('hd').textContent=`${S.dep+1}/12 · ${d.n}`;$('pq').textContent='🪧 '+plTxt(Math.min(S.dep,11));$('hs').textContent=`${got}/${d.s.length} 📸 `;
+$('nx').textContent=n?`Prochain lieu ${sideOf(n)<0?'⬅':'➡'} ${n.n}`:'Tous les lieux visités : suis la sortie'}
+let tt;function toast(h){const e=$('toast');e.innerHTML=h;e.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),/<img/.test(h)?3200:2200)}
+const GEO=[[1.62,6.28],[2.7,6.4],[2.72,6.75],[2.7,7.05],[2.76,7.6],[3.1,8.1],[3.2,8.8],[3.55,9.5],[3.85,10.4],[3.8,11],[3.62,11.7],[3.35,12.05],[3.2,12.4],[2.85,12.3],[2.4,11.9],[1.9,11.4],[1.45,11.45],[.9,10.95],[.77,10.4],[1.38,9.95],[1.6,9.5],[1.82,9.05],[1.6,8.3],[1.62,7.6],[1.63,6.95],[1.6,6.7]];
+const CAP=[[2.43,6.37],[2.15,6.67],[2.63,6.5],[2.61,7.36],[1.72,6.64],[1.68,6.94],[1.99,7.18],[2.18,7.75],[1.67,9.7],[2.63,9.34],[1.38,10.3],[2.94,11.13]];
+const mp=p=>[6+(p[0]-.7)/3.3*68,146-(p[1]-6.2)/6.3*140];
+function drawMini(){const g=$('mm').getContext('2d');g.clearRect(0,0,80,152);g.beginPath();GEO.forEach((p,i)=>{const q=mp(p);i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1])});g.closePath();g.fillStyle='#e8c98a';g.fill();g.strokeStyle='#3a2412';g.lineWidth=1.5;g.stroke();
+const d=depNow(),a=CAP[S.dep>11?11:S.dep],b=CAP[Math.min(S.dep+1,11)],f=d.s.filter(x=>S.got[x.id]).length/d.s.length,pos=[a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f];
+g.beginPath();for(let i=0;i<=S.dep&&i<12;i++){const q=mp(CAP[i]);i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1])}const pp=mp(pos);g.lineTo(pp[0],pp[1]);g.strokeStyle='#2f9e5b';g.lineWidth=3;g.stroke();
+CAP.forEach((c,i)=>{const q=mp(c);g.beginPath();g.arc(q[0],q[1],i<S.dep?2.5:2,0,7);g.fillStyle=i<S.dep?'#2f9e5b':'#8a5530';g.fill()});
+if(S.dep<11){const q=mp(b);g.beginPath();g.arc(q[0],q[1],4+Math.sin(t*5)*1.5,0,7);g.strokeStyle='#d9482b';g.lineWidth=2;g.stroke()}
+g.beginPath();g.arc(pp[0],pp[1],4.5,0,7);g.fillStyle='#e8a317';g.fill();g.strokeStyle='#3a2412';g.lineWidth=2;g.stroke()}
+function tree(x,y,k,ty){const u=W*.09*k;cx.save();cx.fillStyle='#0003';cx.beginPath();cx.ellipse(x+u*.5,y,u*.9,u*.2,0,0,7);cx.fill();
+if(ty=='P'){cx.strokeStyle='#5a3a1c';cx.lineWidth=u*.14;cx.beginPath();cx.moveTo(x,y);cx.quadraticCurveTo(x+u*.2,y-u*1.3,x+u*.1,y-u*2.2);cx.stroke();cx.strokeStyle='#1f7a3a';cx.lineWidth=u*.16;for(let a=0;a<6;a++){const an=a/6*6.28,cs=Math.cos(an);cx.beginPath();cx.moveTo(x+u*.1,y-u*2.2);cx.quadraticCurveTo(x+u*.1+cs*u*.7,y-u*2.7,x+u*.1+cs*u*1.1,y-u*2.1+Math.abs(Math.sin(an))*u*.5);cx.stroke()}}
+else if(ty=='T'){cx.fillStyle='#5a3a1c';cx.fillRect(x-u*.1,y-u*1.3,u*.2,u*1.3);[['#1b6b34',0,-1.9,.9],['#2f9e5b',-.4,-1.6,.7],['#3fb36b',.4,-1.7,.65]].forEach(c=>{cx.fillStyle=c[0];cx.beginPath();cx.arc(x+u*c[1],y+u*c[2],u*c[3],0,7);cx.fill()})}
+else if(ty=='B'){[['#2a8a4a',-.3],['#3fb36b',.2]].forEach(c=>{cx.fillStyle=c[0];cx.beginPath();cx.ellipse(x+u*c[1],y-u*.3,u*.5,u*.35,0,0,7);cx.fill()})}
+else if(ty=='H'){cx.fillStyle='#c98d4e';cx.fillRect(x-u*.7,y-u*.8,u*1.4,u*.8);cx.fillStyle='#7a5a20';cx.beginPath();cx.moveTo(x-u*.9,y-u*.8);cx.lineTo(x,y-u*1.6);cx.lineTo(x+u*.9,y-u*.8);cx.fill();cx.fillStyle='#3a2412';cx.fillRect(x-u*.15,y-u*.5,u*.3,u*.5)}
+else if(ty=='G'){cx.strokeStyle='#8fbf3a';cx.lineWidth=Math.max(1,u*.06);for(let a=-3;a<=3;a++){cx.beginPath();cx.moveTo(x+a*u*.1,y);cx.lineTo(x+a*u*.2,y-u*(.7+(a&1)*.3));cx.stroke()}}
+else{cx.fillStyle='#b5683a';cx.beginPath();cx.ellipse(x,y,u*1.2,u*.18,0,0,7);cx.fill()}
+cx.restore()}
+function draw(){const p=pal(),hz=H*.3,hh=110-S.dep/11*55;
+let g=cx.createLinearGradient(0,0,0,hz);g.addColorStop(0,p.sky);g.addColorStop(1,'#ffe9b8');cx.fillStyle=g;cx.fillRect(0,0,W,hz);
+cx.fillStyle=`hsl(${hh},30%,40%)`;cx.beginPath();cx.moveTo(0,hz);for(let x=0;x<=W;x+=W/16)cx.lineTo(x,hz-H*.03*(1+Math.sin(x*.01+S.dep)));cx.lineTo(W,hz);cx.fill();
+const R=24;for(let i=0;i<R;i++){const a=proj(i/R,0).y,b=proj((i+1)/R,0).y;cx.fillStyle=`hsl(${hh},50%,${33+((i+Math.floor(sc*10))%2)*4+i*.3}%)`;cx.fillRect(0,a,W,(i==R-1?H:b)-a+1)}
+const poly=(z0,z1,m,c,o)=>{const a=proj(z0,o||0),b=proj(z1,o||0),w0=W*(.04+.46*z0)*m,w1=W*(.04+.46*z1)*m;cx.fillStyle=c;cx.beginPath();cx.moveTo(a.x-w0,a.y);cx.lineTo(a.x+w0,a.y);cx.lineTo(b.x+w1,z1>=1?H:b.y+1);cx.lineTo(b.x-w1,z1>=1?H:b.y+1);cx.fill()};
+for(let i=0;i<R;i++){const z0=i/R,z1=(i+1)/R,e=(i+Math.floor(sc*10))%2;poly(z0,z1,1.22,'#e3c58a');poly(z0,z1,1,e?p.road:'#a85a30');
+const a=proj(z0,0),b=proj(z1,0),w0=W*(.04+.46*z0),w1=W*(.04+.46*z1);cx.fillStyle='#6b2f1488';for(const sg of[-.42,.42]){cx.beginPath();cx.moveTo(a.x+sg*w0-w0*.1,a.y);cx.lineTo(a.x+sg*w0+w0*.1,a.y);cx.lineTo(b.x+sg*w1+w1*.1,b.y+1);cx.lineTo(b.x+sg*w1-w1*.1,b.y+1);cx.fill()}}
+cx.textAlign='center';
+[...deco,...items].sort((a,b)=>a.z-b.z).forEach(o=>{const q=proj(o.z,o.x);if(o.k=='p'||o.k=='x'){drawPl(o,q)}else if(o.k=='L'){drawL(o,q)}else if(o.k=='o'){cx.font=W*.2*q.s+'px serif';cx.fillText('🚧',q.x,q.y)}else tree(q.x,q.y,q.s,o.e)});
+zem(proj(.9,px).x,H*.8);
+fx.forEach(f=>{if(f.k=='fly'){const e=f.t,x=f.x0+(W*.62-f.x0)*e,y=f.y0+(H*.93-f.y0)*e-Math.sin(e*3.14)*H*.12,w=W*.2*(1-.6*e);cx.save();cx.translate(x,y);cx.rotate(e*.4);cx.fillStyle='#fffdf5';cx.fillRect(-w/2,-w/2,w,w*1.1);const im=pim(f.s);if(im)cx.drawImage(im,-w*.44,-w*.44,w*.88,w*.8);else{cx.fillStyle='#d9c9a3';cx.fillRect(-w*.44,-w*.44,w*.88,w*.8)}cx.restore();return}cx.globalAlpha=1-f.t;cx.font='26px serif';cx.fillText(f.e,f.x,f.y)});cx.globalAlpha=1}
+function drawPl(o,q){const k=q.s,i=o.i,x=q.x,y=q.y,hw=W*(.04+.46*o.z)*1.08,pw=Math.max(6,W*.05*k),HH=W*1.3*k,PH=W*.62*k,L=x-hw-pw/2,Wd=2*hw+pw;
+cx.save();cx.lineWidth=Math.max(2,4*k);cx.strokeStyle='#3a2412';
+cx.fillStyle='#6b4423';cx.fillRect(x-hw-pw/2,y-HH,pw,HH);cx.strokeRect(x-hw-pw/2,y-HH,pw,HH);cx.fillRect(x+hw-pw/2,y-HH,pw,HH);cx.strokeRect(x+hw-pw/2,y-HH,pw,HH);
+cx.fillStyle='#e8a317';cx.beginPath();cx.roundRect(L,y-HH,Wd,PH,18*k);cx.fill();cx.stroke();
+cx.strokeStyle='#fff8';cx.lineWidth=Math.max(1,2*k);cx.beginPath();cx.roundRect(L+8*k,y-HH+8*k,Wd-16*k,PH-16*k,12*k);cx.stroke();
+const fit=(t,f,m)=>{cx.font='800 '+f+'px "Trebuchet MS",sans-serif';const w=cx.measureText(t).width;if(w>m){f*=m/w;cx.font='800 '+f+'px "Trebuchet MS",sans-serif'}};
+cx.textBaseline='middle';cx.fillStyle='#3a2412';
+cx.font=PH*.3+'px serif';cx.fillText(ICO[i],x,y-HH+PH*.2);
+const t1=o.t1||'Nous sommes';fit(t1,PH*.17,Wd*.8);cx.fillText(t1,x,y-HH+PH*.46);
+const t2=o.t2||PRE[i]+D[i].n;fit(t2,PH*.27,Wd*.86);cx.fillText(t2,x,y-HH+PH*.72);
+cx.restore()}
+/* Un lieu au bord de la route unique : bâtiment sur le bas-côté, repère au sol sur le bord, panneau avec le nom */
+function drawL(o,q){const k=q.s,sd=o.sd,w=W*(.04+.46*o.z),y=q.y,s=o.it,fw=W*.38*k,fh=fw*1.12,fx=q.x+sd*(w*1.3+fw*.55),fy=y-fh*1.2;
+cx.save();cx.strokeStyle='#fff';cx.lineWidth=Math.max(2,5*k);cx.setLineDash([8*k+2,6*k+2]);cx.beginPath();cx.ellipse(q.x+sd*w*.68,y,w*.26,w*.07,0,0,7);cx.stroke();cx.setLineDash([]);
+cx.fillStyle='#5a3a1c';cx.fillRect(fx-fw*.03,fy+fh*.9,fw*.06,y-fy-fh*.9);
+cx.translate(fx,fy+fh/2);cx.rotate(sd*.05);cx.fillStyle='#0004';cx.fillRect(-fw/2+fw*.04,-fh/2+fw*.04,fw,fh);cx.fillStyle='#fffdf5';cx.fillRect(-fw/2,-fh/2,fw,fh);
+const m=fw*.06,iw=fw-2*m,ih=fh*.78,im=pim(s);
+if(im){const r=Math.max(iw/im.naturalWidth,ih/im.naturalHeight),sw=iw/r,sh=ih/r;cx.drawImage(im,(im.naturalWidth-sw)/2,(im.naturalHeight-sh)/2,sw,sh,-fw/2+m,-fh/2+m,iw,ih)}
+else{const gr=cx.createLinearGradient(0,-fh/2,0,fh/2);gr.addColorStop(0,'#e9d7ae');gr.addColorStop(1,'#b99a62');cx.fillStyle=gr;cx.fillRect(-fw/2+m,-fh/2+m,iw,ih);cx.fillStyle='#6b4423';cx.textBaseline='middle';cx.font=iw*.3+'px serif';cx.fillText('📷',0,-fh*.08);cx.font='700 '+iw*.11+'px sans-serif';cx.fillText('photo en chargement…',0,fh*.18)}
+cx.fillStyle='#e8a317aa';cx.fillRect(-fw*.15,-fh/2-fh*.04,fw*.3,fh*.08);cx.restore()}
+function zem(x,y){const u=W/400,bob=Math.sin(t*14)*2*u;cx.save();cx.translate(x,y+bob);cx.scale(u*1.25,u*1.25);
+cx.fillStyle='#0003';cx.beginPath();cx.ellipse(0,52,34,9,0,0,7);cx.fill();
+cx.fillStyle='#222';cx.fillRect(-7,-4,14,60);cx.fillStyle='#e8a317';cx.strokeStyle='#3a2412';cx.lineWidth=3;cx.beginPath();cx.roundRect(-18,10,36,34,10);cx.fill();cx.stroke();
+// conducteur (devant, en haut) et passager (derrière, plus bas)
+cx.fillStyle='#2f9e5b';cx.beginPath();cx.roundRect(-14,-18,28,26,9);cx.fill();cx.stroke();
+cx.fillStyle='#8a5530';cx.beginPath();cx.arc(0,-26,11,0,7);cx.fill();cx.stroke();cx.fillStyle='#f5d020';cx.fillRect(-12,-38,24,8);
+cx.fillStyle='#d9482b';cx.beginPath();cx.roundRect(-15,12,30,24,9);cx.fill();cx.stroke();
+cx.fillStyle='#b9784a';cx.beginPath();cx.arc(0,4,10,0,7);cx.fill();cx.stroke();
+cx.fillStyle='#3a2412';cx.fillRect(-4,2,2,3);cx.fillRect(3,2,2,3);
+cx.restore()}
+/* ===== MOTEUR 3D · Three.js r128 (repli automatique sur l'ancien rendu 2D si WebGL indisponible) ===== */
+const R3=(()=>{try{
+if(typeof THREE==='undefined')return null;
+const ren=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'}),el=ren.domElement;
+el.style.cssText='position:absolute;inset:0;width:100%;height:100%';cv.parentNode.insertBefore(el,cv);cv.style.cssText='position:absolute;inset:0;z-index:0';
+ren.shadowMap.enabled=true;ren.shadowMap.type=THREE.PCFSoftShadowMap;
+const scn=new THREE.Scene(),cam=new THREE.PerspectiveCamera(66,1,.1,120);scn.fog=new THREE.Fog(0xffe9b8,26,72);
+const V=(a)=>new THREE.Vector3(a[0],a[1],a[2]),UP=V([0,1,0]);
+const L=(c,o)=>new THREE.MeshLambertMaterial(Object.assign({color:c},o||{}));
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const tex=(w,h,f,rx,ry)=>{const c=document.createElement('canvas');c.width=w;c.height=h;f(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=4;if(rx)t.repeat.set(rx,ry);return t};
+const dots=(g,w,h,base,cols,n,r)=>{g.fillStyle=base;g.fillRect(0,0,w,h);for(let i=0;i<n;i++){g.fillStyle=cols[i%cols.length];g.globalAlpha=.2+Math.random()*.45;g.beginPath();g.arc(Math.random()*w,Math.random()*h,.6+Math.random()*r,0,7);g.fill()}g.globalAlpha=1};
+const cyl=(a,b,h,m,s)=>new THREE.Mesh(new THREE.CylinderGeometry(a,b,h,s||10),m),sph=(r,m,s)=>new THREE.Mesh(new THREE.SphereGeometry(r,s||12,s?s*.7|0:9),m),box=(x,y,z,m)=>new THREE.Mesh(new THREE.BoxGeometry(x,y,z),m);
+const rx=o=>{o.rotation.x=Math.PI/2;return o},rz=o=>{o.rotation.z=Math.PI/2;return o};const at=(o,x,y,z)=>{o.position.set(x,y,z);return o};
+const limb=(a,b,r1,r2,m)=>{a=V(a);b=V(b);const d=b.clone().sub(a),l=d.length(),o=cyl(r2,r1,l,m,8);o.position.copy(a).addScaledVector(d,.5);o.quaternion.setFromUnitVectors(UP,d.normalize());return o};
+const shade=g=>{g.traverse(o=>{if(o.isMesh){o.castShadow=true}});return g};
+/* ---------- sol : route, bordures, terre rouge, végétation ---------- */
+const asph=tex(256,512,(g,w,h)=>{dots(g,w,h,'#3d3d42',['#2b2b30','#55555a','#4a4a4f','#1f1f23'],2600,2.2);g.strokeStyle='#1a1a1e';g.lineWidth=1;for(let i=0;i<9;i++){g.beginPath();let x=Math.random()*w,y=Math.random()*h;g.moveTo(x,y);for(let k=0;k<5;k++){x+=rnd(-14,14);y+=rnd(6,22);g.lineTo(x,y)}g.stroke()}
+g.fillStyle='#e8e4d0';for(let y=0;y<h;y+=128)g.fillRect(w/2-4,y,8,64);g.fillStyle='#f4f0dc';g.fillRect(10,0,6,h);g.fillRect(w-16,0,6,h);g.fillStyle='rgba(0,0,0,.18)';g.fillRect(w*.3,0,16,h);g.fillRect(w*.66,0,16,h)},1,8);
+const earth=tex(256,256,(g,w,h)=>{dots(g,w,h,'#a9462a',['#c4673b','#8a3a20','#d9955a','#6e2c18'],2200,3.5);for(let i=0;i<90;i++){g.fillStyle=i%2?'#d8c3a0':'#7a6a58';g.beginPath();g.ellipse(Math.random()*w,Math.random()*h,1+Math.random()*2.5,1+Math.random()*1.6,Math.random()*3,0,7);g.fill()}},4,12);
+const grs=tex(256,256,(g,w,h)=>{dots(g,w,h,'#c8c8c8',['#a8a8a8','#e0e0e0','#909090','#d4d4d4'],2400,3);g.strokeStyle='#ffffff55';for(let i=0;i<500;i++){g.beginPath();const x=Math.random()*w,y=Math.random()*h;g.moveTo(x,y);g.lineTo(x+rnd(-2,2),y-rnd(3,9));g.stroke()}},8,12);
+const gravel=tex(128,128,(g,w,h)=>dots(g,w,h,'#c9b68f',['#a99770','#e2d3ad','#8f7e5a'],700,2),1,12);
+asph.repeat.set(1,8);const LEN=84,SEG=56,strips=[];
+const bend=z=>cur()*z*z*.0025;
+function strip(x0,x1,y,mat){const g=new THREE.PlaneGeometry(x1-x0,LEN,2,SEG);g.rotateX(-Math.PI/2);g.translate((x0+x1)/2,y,-LEN/2+12);const m=new THREE.Mesh(g,mat);m.receiveShadow=true;m.userData.b=Float32Array.from(g.attributes.position.array);scn.add(m);strips.push(m);return m}
+const grassM=L(0xffffff,{map:grs}),earthM=L(0xffffff,{map:earth}),gravM=L(0xffffff,{map:gravel}),roadM=L(0xffffff,{map:asph});
+[[-70,-13,-.04,grassM],[13,70,-.04,grassM],[-13,-5.2,-.02,earthM],[5.2,13,-.02,earthM],[-5.2,-4.3,0,gravM],[4.3,5.2,0,gravM],[-4.3,4.3,.015,roadM]].forEach(a=>strip(a[0],a[1],a[2],a[3]));
+const curbM=L(0xe9e2c8);[-4.3,4.3].forEach(x=>strip(x-.12,x+.12,.06,curbM));
+/* ---------- ciel, soleil, nuages, lumières ---------- */
+let skyT=null;const sky=h=>{if(skyT)skyT.dispose();skyT=tex(8,256,(g,w,hh)=>{const q=g.createLinearGradient(0,0,0,hh);q.addColorStop(0,h);q.addColorStop(.62,'#bfe3f5');q.addColorStop(1,'#ffe9b8');g.fillStyle=q;g.fillRect(0,0,w,hh)});skyT.wrapS=skyT.wrapT=THREE.ClampToEdgeWrapping;scn.background=skyT};
+const sun=new THREE.DirectionalLight(0xfff0c4,1.05);sun.position.set(-14,24,10);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);Object.assign(sun.shadow.camera,{left:-20,right:20,top:28,bottom:-28,near:1,far:70});scn.add(sun,sun.target,new THREE.HemisphereLight(0xcfe8ff,0x9a6a3a,.78));
+const disc=new THREE.Mesh(new THREE.SphereGeometry(5,16,12),new THREE.MeshBasicMaterial({color:0xfff2b0,fog:false}));disc.position.set(-34,40,-100);scn.add(disc);
+const clouds=[];for(let i=0;i<7;i++){const g=new THREE.Group();for(let k=0;k<4;k++){const s=sph(rnd(4,7),new THREE.MeshBasicMaterial({color:0xffffff,fog:false,transparent:true,opacity:.92}),8);s.scale.y=.5;s.position.set(k*5-8,rnd(-1,1),rnd(-2,2));g.add(s)}g.position.set(rnd(-90,90),rnd(26,46),-105);g.userData.v=rnd(.4,1);scn.add(g);clouds.push(g)}
+/* ---------- végétation et décors (modèles clonés) ---------- */
+const brown=L(0x6b4423),palmM=[L(0x1f8a3a),L(0x2fa04a),L(0x187a35)],leafM=[L(0x2b8a3e),L(0x3fa653),L(0x1d6e30),L(0x4cae45)];
+const TP={};
+TP.P=(()=>{const g=new THREE.Group();for(let i=0;i<5;i++)g.add(at(cyl(.27-.03*i,.31-.03*i,1.3,brown,7),i*.1,.65+i*1.25,0));const fr=new THREE.Group();fr.name='fr';fr.position.set(.5,6.4,0);for(let a=0;a<9;a++){const f=new THREE.Group();f.rotation.y=a/9*6.283;const s1=at(box(1.7,.05,.6,palmM[a%3]),.85,0,0);s1.rotation.z=.05;const j=new THREE.Group();j.position.set(1.7,0,0);j.rotation.z=-.75;j.add(at(box(1.7,.05,.5,palmM[(a+1)%3]),.85,0,0));f.add(s1,j);f.rotation.z=0;fr.add(f)}g.add(fr);for(let k=0;k<3;k++)g.add(at(sph(.2,L(0x7a5a2a),8),.5+Math.cos(k*2.1)*.3,6.1,Math.sin(k*2.1)*.3));return shade(g)})();
+TP.T=(()=>{const g=new THREE.Group();g.add(at(cyl(.3,.5,3.2,brown,8),0,1.6,0));[[0,4.4,0,2],[1.3,3.9,.4,1.4],[-1.3,4.0,-.3,1.5],[.2,5.3,.5,1.3],[-.4,3.8,1.2,1.2]].forEach((c,i)=>{const b=new THREE.Mesh(new THREE.IcosahedronGeometry(c[3],1),L(leafM[i%4].color));b.position.set(c[0],c[1],c[2]);b.name=i?'':'fr';g.add(b)});return shade(g)})();
+TP.B=(()=>{const g=new THREE.Group();[[0,.5,0,.8],[.8,.4,.3,.6],[-.7,.35,-.2,.55]].forEach((c,i)=>{const b=sph(c[3],L(leafM[i+1].color),8);b.position.set(c[0],c[1],c[2]);g.add(b)});return shade(g)})();
+TP.G=(()=>{const g=new THREE.Group();for(let i=0;i<9;i++){const c=cyl(0,.07,rnd(.7,1.4),L(i%2?0x8fbf3a:0x6aa832),4);c.position.set(rnd(-.4,.4),.5,rnd(-.4,.4));c.rotation.set(rnd(-.3,.3),0,rnd(-.3,.3));g.add(c)}return g})();
+TP.H=(()=>{const g=new THREE.Group();g.add(at(box(3.2,2.2,3),1.1,L(0xc98d4e)));g.children[0].position.y=1.1;const r=cyl(0,2.8,1.8,L(0x8a6a24),4);r.position.y=3.1;r.rotation.y=Math.PI/4;r.scale.set(1.25,1,1.2);g.add(r,at(box(.7,1.4,.1,L(0x3a2412)),0,.7,1.52),at(box(.6,.5,.1,L(0x3a2412)),-1,1.4,1.52),at(box(3.3,.25,3.1,L(0xa87a4a)),0,.12,0));return shade(g)})();
+TP.C=(()=>{const g=new THREE.Group();const m=cyl(.2,1,2.4,L(0xb5522e),7);m.position.y=1.2;g.add(m,at(sph(.5,L(0x8f7a5a),6),1.4,.25,.4));return shade(g)})();
+/* ---- végétation réaliste v4 : écorce texturée, feuillages organiques, palmiers courbés, acacias, fleurs, herbe dense ---- */
+const barkT=tex(64,128,(g,w,h)=>{dots(g,w,h,'#5b3a1e',['#3e2410','#7a5230','#2c190b'],500,2);g.strokeStyle='#2c190b';g.globalAlpha=.5;for(let i=0;i<16;i++){g.beginPath();const x=rnd(0,w);g.moveTo(x,0);g.lineTo(x+rnd(-4,4),h);g.stroke()}g.globalAlpha=1},1,2);
+const lvT=tex(128,128,(g,w,h)=>{dots(g,w,h,'#2f8a3c',['#1d6e30','#4cae45','#7bc24a','#175a28','#95d05a'],1100,5);g.strokeStyle='#14501f55';for(let i=0;i<60;i++){g.beginPath();const x=rnd(0,w),y=rnd(0,h);g.moveTo(x,y);g.lineTo(x+rnd(-6,6),y+rnd(-6,6));g.stroke()}},2,2);
+const bark=L(0xffffff,{map:barkT});
+const blob=(r,col,sd,fy)=>{const gm=new THREE.IcosahedronGeometry(r,2),p=gm.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i),k=1+.17*Math.sin(x*3.1+y*2.3+z*4.7+sd)+.08*Math.sin(x*8+z*7+sd*2);p.setXYZ(i,x*k,y*k*(fy||.85),z*k)}gm.computeVertexNormals();return new THREE.Mesh(gm,L(col,{map:lvT}))};
+const GR=[0xffffff,0xd8f0a8,0xa8d890,0xcfe8b0,0x9fc878];
+TP.T=(()=>{const g=new THREE.Group();g.add(at(cyl(.3,.56,3.4,bark,10),0,1.7,0),at(cyl(.56,.8,.5,bark,10),0,.2,0));
+ [[.9,2.8,.2,1.6,.4],[-1,3.1,-.3,1.7,.7],[.2,3.3,.9,1.5,.2]].forEach(b=>g.add(limb([0,2.6,0],[b[0],b[1]+.9,b[2]],.09,.17,bark)));
+ const fr=new THREE.Group();fr.name='fr';fr.position.set(0,3.1,0);
+ [[0,1.9,0,1.9],[1.4,1.4,.4,1.5],[-1.5,1.5,-.3,1.55],[.3,1.5,1.4,1.4],[-.4,1.4,-1.4,1.45],[1.0,2.7,-.5,1.3],[-1.0,2.8,.5,1.3],[0,3.2,0,1.15],[1.7,2.3,1,1.0],[-1.8,2.4,.9,.95]].forEach((c,i)=>{const b=blob(c[3],GR[i%5]*1,i*1.7);b.position.set(c[0],c[1],c[2]);fr.add(b)});g.add(fr);return shade(g)})();
+TP.P=(()=>{const g=new THREE.Group();let x=0,y=0;for(let i=0;i<8;i++){const s=cyl(.23-.014*i,.27-.014*i,1.05,bark,8);s.position.set(x,y+.52,0);s.rotation.z=-.06;g.add(s);x+=.07;y+=1.02}
+ const fr=new THREE.Group();fr.name='fr';fr.position.set(x,y,0);
+ for(let a=0;a<13;a++){const f=new THREE.Group();f.rotation.y=a/13*6.283+rnd(-.1,.1);let ang=.5+rnd(0,.2),px2=0,py=0;for(let s=0;s<4;s++){const len=1.2,m=L(palmM[(a+s)%3].color);const seg=new THREE.Mesh(new THREE.BoxGeometry(len,.035,.85-.15*s),m);seg.position.set(px2+Math.cos(ang)*len/2,py+Math.sin(ang)*len/2,0);seg.rotation.z=ang;f.add(seg);px2+=Math.cos(ang)*len;py+=Math.sin(ang)*len;ang-=.4}fr.add(f)}
+ g.add(fr);for(let k=0;k<4;k++)g.add(at(sph(.2,L(0x7a5a2a),8),x+.3*Math.cos(k*1.6),y-.25,.3*Math.sin(k*1.6)));return shade(g)})();
+TP.B=(()=>{const g=new THREE.Group();for(let i=0;i<6;i++){const b=blob(rnd(.4,.8),GR[i%5],i*2.3,.8);b.position.set(rnd(-.9,.9),rnd(.3,.7),rnd(-.7,.7));g.add(b)}return shade(g)})();
+TP.F=(()=>{const g=new THREE.Group();for(let i=0;i<4;i++){const b=blob(rnd(.35,.6),GR[i%5],i*3.1,.8);b.position.set(rnd(-.6,.6),rnd(.3,.5),rnd(-.5,.5));g.add(b)}const fc=[0xe5321f,0xffd23c,0xff7ab8,0xffffff];for(let i=0;i<14;i++){const f=sph(.1,new THREE.MeshBasicMaterial({color:fc[i%4]}),5);f.position.set(rnd(-.8,.8),rnd(.5,1.0),rnd(-.7,.7));g.add(f)}return g})();
+TP.A=(()=>{const g=new THREE.Group();g.add(limb([0,0,0],[.3,2.4,0],.22,.34,bark),limb([.3,2.2,0],[-1.2,3.5,.3],.08,.14,bark),limb([.3,2.2,0],[1.5,3.4,-.2],.08,.14,bark));const fr=new THREE.Group();fr.name='fr';fr.position.set(.2,3.6,0);[[-1.3,0,.3,1.9],[1.5,-.1,-.2,1.9],[.1,.35,0,2.1]].forEach((c,i)=>{const b=blob(c[3],GR[(i+1)%5],i*2,.3);b.position.set(c[0],c[1],c[2]);fr.add(b)});g.add(fr);return shade(g)})();
+TP.G=(()=>{const g=new THREE.Group(),cs=[0x8fbf3a,0x6aa832,0x9ccf4a,0x5a9a2a,0xb4d85a];for(let i=0;i<34;i++){const h=rnd(.6,1.7),c=cyl(0,.07,h,L(cs[i%5]),4);const a=rnd(0,6.28),r=rnd(0,.7);c.position.set(Math.cos(a)*r,h/2,Math.sin(a)*r);c.rotation.set(rnd(-.35,.35),0,rnd(-.35,.35));g.add(c)}return g})();
+const pagneT=tex(128,128,(g,w,h)=>{g.fillStyle='#d9482b';g.fillRect(0,0,w,h);for(let y=0;y<h;y+=32)for(let x=0;x<w;x+=32){g.fillStyle=(x+y)%64?'#f5d020':'#1d6fb8';g.beginPath();g.moveTo(x+16,y+3);g.lineTo(x+29,y+16);g.lineTo(x+16,y+29);g.lineTo(x+3,y+16);g.fill();g.fillStyle='#fff3';g.fillRect(x,y+15,32,2)}});
+/* ---------- la moto Zemidjan, le conducteur et le voyageur ---------- */
+const moto=new THREE.Group(),wheels=[],body=new THREE.Group(),steel=L(0xc8ccd2,{emissive:0x111111}),black=L(0x151515),red=L(0xc8321e),chrome=L(0xeeeeee,{emissive:0x222222});
+function wheel(z){const w=new THREE.Group(),sp=new THREE.Group();const tire=new THREE.Mesh(new THREE.TorusGeometry(.34,.095,10,22),L(0x111111));tire.rotation.y=Math.PI/2;const rim=cyl(.25,.25,.1,steel,16);rim.rotation.z=Math.PI/2;sp.add(tire,rim);for(let i=0;i<8;i++){const s=box(.03,.5,.03,steel);s.rotation.x=i*Math.PI/8;sp.add(s)}sp.add(at(cyl(.07,.07,.2,chrome,8),0,0,0));sp.children[sp.children.length-1].rotation.z=Math.PI/2;w.add(sp);w.position.set(0,.43,z);w.userData.sp=sp;moto.add(w);wheels.push(sp);shade(w)}
+wheel(-.88);wheel(.88);
+body.add(at(box(.14,.14,1.45,red),0,.72,.0),limb([0,.45,-.88],[0,1.1,-.78],.05,.05,steel),limb([.1,.45,-.88],[.1,1.1,-.78],.03,.03,chrome),limb([-.1,.45,-.88],[-.1,1.1,-.78],.03,.03,chrome),limb([0,.45,.88],[0,.75,.1],.04,.04,steel),
+ at(box(.36,.3,.5,steel),0,.5,.12),at(cyl(.1,.1,.34,steel,8),0,.7,.05),at(rx(cyl(.2,.2,.5,red,12)),0,1.03,-.42),at(box(.38,.1,1.05,L(0x1c1c1c)),0,.93,.25),at(box(.42,.05,.3,red),0,.96,.8),
+ at(box(.2,.04,.8,red),0,.78,-.88),at(box(.2,.04,.6,red),0,.74,.95),at(box(.5,.04,.5,steel),0,.98,.85),
+ at(rz(cyl(.025,.025,.9,black,6)),0,1.12,-.78),at(sph(.14,L(0xfff6c0,{emissive:0xffe9a0}),10),0,1.08,-.95),at(box(.12,.06,.04,L(0xff2a1a,{emissive:0xaa0000})),0,.82,1.3),at(box(.2,.12,.02,L(0xf5d020)),0,.7,1.32),at(rz(cyl(.07,.07,.12,steel,8)),.4,.5,.22),at(rz(cyl(.07,.07,.12,steel,8)),-.4,.5,.22));
+[-1,1].forEach(s=>{body.add(limb([s*.3,1.12,-.78],[s*.36,1.4,-.78],.012,.012,black),at(sph(.065,steel,8),s*.37,1.45,-.78),at(box(.3,.03,.03,steel),s*.45,1.12,-.78))});
+const exh=cyl(.05,.07,.9,chrome,8);exh.rotation.x=Math.PI/2;exh.position.set(.24,.4,.5);body.add(exh);
+function person(c){const g=new THREE.Group(),sk=L(c.skin),sh=c.shirt,hip=c.hip,sd=c.sh;g.add(limb(hip,sd,.17,.2,sh),sph(.19,sh,8).translateX(sd[0]).translateY(sd[1]).translateZ(sd[2]));if(c.vest)g.add(limb(hip.map((v,i)=>v+(sd[i]-v)*.25),hip.map((v,i)=>v+(sd[i]-v)*.85),.2,.215,c.vest));
+ [-1,1].forEach(s=>{const sP=[s*.2,sd[1]-.03,sd[2]],e=c.el.map((v,i)=>i?v:v*s),h=c.hd.map((v,i)=>i?v:v*s);g.add(limb(sP,e,.065,.055,c.sleeve),sph(.06,c.sleeve,6).translateX(e[0]).translateY(e[1]).translateZ(e[2]),limb(e,h,.05,.04,sk),at(sph(.055,sk,6),h[0],h[1],h[2]));
+  const k=c.kn.map((v,i)=>i?v:v*s),f=c.ft.map((v,i)=>i?v:v*s),hp=[s*.13,hip[1],hip[2]];g.add(limb(hp,k,.1,.085,c.pants),sph(.085,c.pants,6).translateX(k[0]).translateY(k[1]).translateZ(k[2]),limb(k,f,.075,.06,c.pants),at(box(.11,.08,.28,L(0x1a1a1a)),f[0],f[1]-.04,f[2]-.06))});
+ const hd=new THREE.Group();hd.position.set(sd[0],sd[1]+.3,sd[2]-.02);hd.add(at(cyl(.06,.07,.14,sk,8),0,-.15,0),sph(.14,sk,12),at(sph(.018,black,5),-.05,.02,-.125),at(sph(.018,black,5),.05,.02,-.125),at(box(.04,.05,.04,sk),0,-.02,-.14),at(box(.06,.012,.02,L(0x4a1a12)),0,-.07,-.135));
+ if(c.helmet){const h=new THREE.Mesh(new THREE.SphereGeometry(.17,14,10,0,6.283,0,1.7),c.helmet);h.position.y=.02;hd.add(h,at(box(.3,.03,.12,c.helmet),0,.04,-.17))}else{const h=new THREE.Mesh(new THREE.SphereGeometry(.15,12,8,0,6.283,0,1.4),L(0x111111));h.position.y=.02;hd.add(h)}
+ g.add(hd);g.userData.hd=hd;return g}
+const drv=person({skin:0x6b4226,shirt:L(0x2f9e5b),sleeve:L(0x2f9e5b),vest:L(0xff7a12),pants:L(0x2b3a55),helmet:L(0xf2c218),hip:[0,.98,-.2],sh:[0,1.46,-.38],el:[.34,1.18,-.5],hd:[.33,1.14,-.78],kn:[.26,.88,-.62],ft:[.24,.36,-.5]});
+const pas=person({skin:0x85573a,shirt:L(0xffffff,{map:pagneT}),sleeve:L(0xffffff,{map:pagneT}),pants:L(0xc9b48a),hip:[0,.98,.52],sh:[0,1.5,.46],el:[.36,1.28,.22],hd:[.24,1.1,-.1],kn:[.34,.9,.1],ft:[.3,.34,.3]});
+body.add(shade(drv),shade(pas));moto.add(shade(body));
+const shd=new THREE.Mesh(new THREE.CircleGeometry(1,20),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.35,depthWrite:false}));shd.rotation.x=-Math.PI/2;shd.scale.set(.7,1.5,1);shd.position.y=.03;moto.add(shd);scn.add(moto);
+/* poussière sur les bas-côtés */
+const DN=70,dp=new Float32Array(DN*3),dl=new Float32Array(DN).map(()=>Math.random()),dg=new THREE.BufferGeometry();dg.setAttribute('position',new THREE.BufferAttribute(dp,3));const dust=new THREE.Points(dg,new THREE.PointsMaterial({color:0xd79a63,size:.55,transparent:true,opacity:.45,depthWrite:false}));dust.frustumCulled=false;scn.add(dust);
+/* fumée bleue du pot d'échappement (turbo) */
+const SN=90,smT=tex(64,64,(g,w,h)=>{const q=g.createRadialGradient(32,32,0,32,32,32);q.addColorStop(0,'rgba(140,200,255,1)');q.addColorStop(.45,'rgba(70,140,255,.55)');q.addColorStop(1,'rgba(40,90,255,0)');g.fillStyle=q;g.fillRect(0,0,w,h)});smT.repeat.set(1,1);
+const smoke=[];for(let i=0;i<SN;i++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:smT,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));s.visible=false;s.userData={l:1};scn.add(s);smoke.push(s)}let smI=0;
+/* ---------- panneaux, lieux, obstacles ---------- */
+const wood=L(0x6b4423);
+function label(l1,l2,w,h,bg){const t=tex(512,Math.round(512*h/w),(g,W2,H2)=>{const q=g.createLinearGradient(0,0,0,H2);q.addColorStop(0,bg[0]);q.addColorStop(1,bg[1]);g.fillStyle=q;g.fillRect(0,0,W2,H2);g.strokeStyle='#3a2412';g.lineWidth=14;g.strokeRect(7,7,W2-14,H2-14);g.strokeStyle='#fff8';g.lineWidth=4;g.strokeRect(22,22,W2-44,H2-44);g.fillStyle='#3a2412';g.textAlign='center';g.textBaseline='middle';const fit=(s,f,m)=>{g.font='800 '+f+'px "Trebuchet MS",sans-serif';const k=g.measureText(s).width;if(k>m)g.font='800 '+Math.floor(f*m/k)+'px "Trebuchet MS",sans-serif'};if(l2){fit(l1,H2*.17,W2*.8);g.fillText(l1,W2/2,H2*.32);fit(l2,H2*.28,W2*.86);g.fillText(l2,W2/2,H2*.66)}else{fit(l1,H2*.3,W2*.84);g.fillText(l1,W2/2,H2/2)}});t.wrapS=t.wrapT=THREE.ClampToEdgeWrapping;t.repeat.set(1,1);return t}
+function gantry(o){const g=new THREE.Group(),t=label(o.t1||'Nous sommes',o.t2||PRE[o.i]+D[o.i].n,10.4,3.2,['#ffd45a','#e8a317']);g.add(at(box(.5,6.4,.5,wood),-5.6,3.2,0),at(box(.5,6.4,.5,wood),5.6,3.2,0),at(new THREE.Mesh(new THREE.BoxGeometry(10.4,3.2,.25),new THREE.MeshBasicMaterial({map:t})),0,5.2,0),at(box(11.4,.3,.4,wood),0,6.9,0));if(o.k=='x'){const pm=new THREE.Mesh(new THREE.PlaneGeometry(10.2,6.2),new THREE.MeshBasicMaterial({color:0x9b4dff,transparent:true,opacity:.14,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending}));pm.position.set(0,3.1,0);g.add(pm);g.userData.pm=pm;[-5.1,5.1].forEach(x=>g.add(at(box(.14,6.2,.14,new THREE.MeshBasicMaterial({color:0xc58cff})),x,3.1,0)))}
+g.userData.tx=[t];return shade(g)}
+const PH={};function ptex(s){let p=PH[s.id];if(!p&&s.photo){const im=new Image();im.crossOrigin='anonymous';im.referrerPolicy='no-referrer';p=PH[s.id]={t:null};im.onload=()=>{const t=new THREE.Texture(im);t.needsUpdate=true;p.t=t};im.onerror=()=>{p.bad=1};im.src=gimg(s.photo)}return p&&p.t}
+function lieu(o){const g=new THREE.Group(),s=o.it,pl=tex(8,8,(q,w,h)=>{q.fillStyle='#e9d7ae';q.fillRect(0,0,w,h)}),bd=new THREE.MeshBasicMaterial({map:pl});
+ g.add(at(box(6.2,.35,5.6,L(0xb5522e)),0,.17,0),at(box(6.6,.12,6,L(0xd9b98a)),0,.04,0));[[-2.7,-2.4],[2.7,-2.4],[-2.7,2.4],[2.7,2.4]].forEach(p=>g.add(at(cyl(.2,.24,3.6,wood,8),p[0],2.2,p[1])));
+ const rf=cyl(0,4.9,1.9,L(0x9a7a2a),4);rf.rotation.y=Math.PI/4;rf.position.y=5;g.add(rf);
+ const fr=new THREE.Group();fr.add(box(4.6,3.6,.2,L(0x4a2a10)),at(new THREE.Mesh(new THREE.PlaneGeometry(4.2,3.2),bd),0,0,.11),at(box(.3,.3,.3,L(0xf5d020)),0,1.95,0));fr.position.set(0,2.4,0);fr.rotation.y=-o.sd*.5;g.add(fr);
+ const t=label(s.n,null,6,1.4,['#fff6dc','#f1d89a']);g.add(at(new THREE.Mesh(new THREE.BoxGeometry(5.6,1.3,.2),new THREE.MeshBasicMaterial({map:t})),0,.9,3.1));
+ const ring=new THREE.Mesh(new THREE.RingGeometry(1.1,1.5,32),new THREE.MeshBasicMaterial({color:0xffe066,transparent:true,opacity:.85,side:THREE.DoubleSide,depthWrite:false}));ring.rotation.x=-Math.PI/2;ring.name='ring';ring.userData.side=1;g.userData.ring=ring;g.userData.bd=bd;g.userData.pl=pl;g.userData.tx=[t,pl];g.userData.s=s;return shade(g)}
+const stripeT=tex(128,32,(g,w,h)=>{for(let i=0;i<8;i++){g.fillStyle=i%2?'#fff':'#d9231a';g.fillRect(i*16,0,16,h)}});
+function obst(){const g=new THREE.Group();g.add(at(box(.18,1.3,.18,wood),-1.1,.65,0),at(box(.18,1.3,.18,wood),1.1,.65,0),at(box(2.6,.5,.12,new THREE.MeshLambertMaterial({map:stripeT})),0,1.0,0),at(box(2.6,.5,.12,new THREE.MeshLambertMaterial({map:stripeT})),0,.5,0));[-1.6,1.6].forEach(x=>g.add(at(cyl(.05,.28,.7,L(0xff6a1a),10),x,.35,.2)));return shade(g)}
+function build(o){if(o.k=='p'||o.k=='x')return gantry(o);if(o.k=='L')return lieu(o);if(o.k=='o')return obst();const t=TP[o.e]||TP.C,g=t.clone();g.scale.setScalar(o._s=o._s||rnd(.8,1.5));g.rotation.y=Math.random()*6;return g}
+const on=new Set(),live=new Set();let curDep=-1,sw=0,cw=0,ch=0,bfov=58,lfov=0;
+function theme(){curDep=S.dep;const p=pal(),k=S.dep/11;grassM.color.setHSL((115-k*58)/360,.55,.52+k*.04);sky(p.sky.replace(/hsl\((\d+),(\d+)%,(\d+)%\)/,(m,a,b,c)=>`hsl(${a},${b}%,${c-12}%)`))}
+function render(){const r=cv.getBoundingClientRect();if(r.width!==cw||r.height!==ch){cw=r.width;ch=r.height;ren.setPixelRatio(Math.min(devicePixelRatio||1,1.5));ren.setSize(cw,ch,false);cam.aspect=cw/ch;bfov=cw/ch<.8?74:58;lfov=0;cam.fov=bfov;cam.updateProjectionMatrix()}
+ if(S.dep!==curDep)theme();const c=cur(),wx=px*3.2;
+ asph.offset.y=sc*7;earth.offset.y=sc*5.6;grs.offset.y=sc*5.6;gravel.offset.y=sc*12;
+ strips.forEach(m=>{const a=m.geometry.attributes.position,b=m.userData.b;for(let i=0;i<a.count;i++)a.array[i*3]=b[i*3]+bend(b[i*3+2]);a.needsUpdate=true});
+ live.clear();[...deco,...items].forEach(o=>{let g=o._g;if(!g){g=o._g=build(o);scn.add(g);on.add(g)}live.add(g);const z=(o.z-.9)*70,sd=o.k=='L'?o.sd*8.2:o.k=='o'?o.x*3.2:o.k=='p'||o.k=='x'?0:Math.sign(o.x||1)*(7.2+(Math.abs(o.x)-1.2)*13);g.position.set(sd+bend(z),0,z);g.rotation.y=o.k=='L'?-Math.atan(c*.005*z)+(-o.sd*.35):o.k=='p'||o.k=='x'||o.k=='o'?-Math.atan(c*.005*z):g.rotation.y;
+  const f=g.getObjectByName('fr');if(f&&TP[o.e])f.rotation.z=Math.sin(t*1.4+z)*.035;
+  if(g.userData.pm)g.userData.pm.material.opacity=.12+.07*Math.sin(t*5)+Math.max(0,.22*(1-Math.abs(z)/30));
+  if(o.k=='L'){const u=g.userData,tx=ptex(u.s);if(tx&&u.bd.map!==tx){u.bd.map=tx;u.bd.needsUpdate=true}if(!u.rg){u.rg=u.ring;u.rg.position.set(-o.sd*(8.2-2.3),.08,0);g.add(u.rg)}const k=1+Math.sin(t*6)*.12;u.rg.scale.set(k,k,k)}});
+ on.forEach(g=>{if(!live.has(g)){scn.remove(g);on.delete(g);(g.userData.tx||[]).forEach(t=>t.dispose())}});
+ const bump=Math.sin(t*14)*.012+Math.sin(t*5.3)*.01,sl=slow>0?1:0;body.position.y=bump+sl*Math.sin(t*40)*.03;body.rotation.x=Math.sin(t*9)*.006+Math.sin(t*3.1)*.01;drv.rotation.x=Math.sin(t*6.2)*.012;moto.position.set(wx+bend(0),0,0);moto.rotation.z=-(tx-px)*.35;moto.rotation.y=-(tx-px)*.25-Math.atan(c*.005*0);
+ if(mode=='fall'){const e=Math.min(1,fallT/.5),e2=1-(1-e)*(1-e),th=-fallDir*e2*1.35;moto.rotation.set(0,0,th);moto.position.x+=fallDir*e2*.5;
+  const c=Math.cos(-th),s=Math.sin(-th),pl=(g,wx,wy,wz,ang)=>{g.position.set(wx*c-wy*s,wx*s+wy*c,wz);g.rotation.z=ang-th};
+  pl(drv,fallDir*e2*1.5,Math.sin(Math.min(1,fallT/.7)*Math.PI)*1.0,-e2*.6,-fallDir*e2*1.45);
+  pl(pas,fallDir*e2*2.1,Math.sin(Math.min(1,fallT/.85)*Math.PI)*.8,e2*.5,-fallDir*e2*1.5);pas.rotation.x=e2*.6;drv.rotation.x=-e2*.4}
+ else{drv.position.set(0,0,0);drv.rotation.z=0;pas.position.set(0,0,0);pas.rotation.z=0}
+ const sp=(speed+Math.min(.2,t*.002))*(slow>0?.35:1)*vm*70/.4;wheels.forEach(w=>w.rotation.x-=sp*.016);
+ drv.userData.hd.rotation.set(Math.sin(t*2.3)*.04,Math.sin(t*.9)*.15,0);pas.userData.hd.rotation.set(Math.sin(t*3.1)*.05,Math.sin(t*.7+1)*.3,Math.sin(t*1.7)*.05);pas.rotation.x=Math.sin(t*5)*.008;
+ const pa=dust.geometry.attributes.position;for(let i=0;i<DN;i++){dl[i]+=.016*(.8+sl*.4)*1.6;if(dl[i]>1){dl[i]=0;const s=Math.random()<.5?-1:1;pa.array[i*3]=wx+s*rnd(.1,.35);pa.array[i*3+1]=.1;pa.array[i*3+2]=.9}pa.array[i*3+1]+=.012;pa.array[i*3+2]+=.18+sc*0;pa.array[i*3]+=(pa.array[i*3]-wx)*.01}pa.needsUpdate=true;
+ {const bb=boost>0?boost/BOOST_T:0,wzs=(speed+Math.min(.2,t*.002))*vm*70*.016;
+  if(bb>0)for(let k=0;k<3;k++){const s=smoke[smI=(smI+1)%SN],u=s.userData;s.position.set(wx+.26+rnd(-.08,.08),.42+rnd(0,.12),1.45);u.l=0;u.vx=rnd(.01,.05);u.vy=rnd(.006,.022);u.sz=rnd(.9,1.5);s.visible=true}
+  smoke.forEach(s=>{const u=s.userData;if(u.l>=1){s.visible=false;return}u.l+=.022;s.position.x+=u.vx;s.position.y+=u.vy;s.position.z+=wzs*.55;const k=u.l,sz=u.sz*(.5+k*2.6);s.scale.set(sz,sz,1);s.material.opacity=Math.max(0,.75*(1-k)*Math.min(1,k*8))})}
+ clouds.forEach(c2=>{c2.position.x+=c2.userData.v*.02;if(c2.position.x>110)c2.position.x=-110});
+ const shk=mode=='fall'&&fallT<.45?(.45-fallT)*.7:0;const bq=boost>0?Math.sin(Math.min(1,boost/BOOST_T)*Math.PI*.5):0;cam.position.set(wx*.62+bq*1.5+Math.sin(t*.7)*.05+(Math.random()-.5)*shk,3.25-bq*1.7+bump*2+(Math.random()-.5)*shk*.6,5.9-bq*1.4);const nf=bfov+(boost>0?boost/BOOST_T*20:0);if(Math.abs(nf-lfov)>.05){lfov=nf;cam.fov=nf;cam.updateProjectionMatrix()}cam.lookAt(wx*.3+bend(-14)*.5,1.35,-14);sun.position.set(wx-14,24,10);sun.target.position.set(wx,0,-6);
+ ren.render(scn,cam);
+ cx.setTransform(1,0,0,1,0,0);cx.clearRect(0,0,W,H);fx.forEach(f=>{if(f.k=='fly'){const e=f.t,x=f.x0+(W*.62-f.x0)*e,y=f.y0+(H*.93-f.y0)*e-Math.sin(e*3.14)*H*.12,w=W*.2*(1-.6*e);cx.save();cx.translate(x,y);cx.rotate(e*.4);cx.shadowColor='#0008';cx.shadowBlur=14;cx.fillStyle='#fffdf5';cx.fillRect(-w/2,-w/2,w,w*1.1);cx.shadowBlur=0;const im=pim(f.s);if(im)cx.drawImage(im,-w*.44,-w*.44,w*.88,w*.8);else{cx.fillStyle='#d9c9a3';cx.fillRect(-w*.44,-w*.44,w*.88,w*.8)}cx.restore();return}
+  cx.save();cx.globalAlpha=1-f.t;cx.translate(f.x,f.y);cx.rotate(f.t*4);cx.fillStyle=f.t>.5?'#fff3b0':'#ffd23c';cx.beginPath();for(let i=0;i<8;i++){const a=i*Math.PI/4,q=i%2?5:13;cx.lineTo(Math.cos(a)*q,Math.sin(a)*q)}cx.fill();cx.restore()});}
+return{render,el}}catch(e){console.warn('3D indisponible, repli 2D',e);return null}})();
+function rr(){if(R3&&!R3.bad){try{R3.render()}catch(e){console.error(e);R3.bad=1;R3.el.remove();cv.style.cssText=''}}if(!R3||R3.bad)draw()}
+
+let paused=false;function togglePause(f){paused=typeof f==='boolean'?f:!paused;const b=$('pz');b.textContent=paused?'▶ Reprendre':'⏸ Pause';b.style.animation=paused?'none':'';if(paused)toast('⏸ Jeu en pause')}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)togglePause(true)});
+addEventListener('keydown',e=>{if(e.key==='p'||e.key==='P'||e.key===' '){e.preventDefault();togglePause()}});
+let last=0,run=true;function loop(ts){const dt=Math.min(.05,(ts-last)/1000||0);last=ts;if(!$('start').classList.contains('on')&&!$('map').classList.contains('on')&&!$('book').classList.contains('on')&&!$('page').classList.contains('on')&&!paused)update(dt);rr();drawMini();mapFx(ts);requestAnimationFrame(loop)}
+function mv(e){const r=cv.getBoundingClientRect();const cxp=(e.touches?e.touches[0].clientX:e.clientX);tx=Math.max(-.8,Math.min(.8,((cxp-r.left)/r.width-.5)*2.2))}
+cv.addEventListener('pointermove',mv);cv.addEventListener('pointerdown',mv);
+addEventListener('keydown',e=>{if(e.key=='ArrowLeft')tx=Math.max(-.8,tx-.6);if(e.key=='ArrowRight')tx=Math.min(.8,tx+.6)});
+hud();plaque();seedDeco();loadPhotos();requestAnimationFrame(loop);
+</script>
+<script>
+(function(){
+const ov=document.getElementById('intro'),c=document.getElementById('ic'),g=c.getContext('2d');
+if(!ov||!c||typeof GEO==='undefined'||typeof voro==='undefined')return;
+const A=6.5,B=7.5,C=12.5,E=2.2,T=A+B+C+E;
+let cw=0,ch=0,dpr=1,tt=0,last=0,raf=0,done=false,dtv=.016,hdS=null,MC=null;
+const src=document.createElement('canvas'),sg=src.getContext('2d');
+const cl=(x,a=0,b=1)=>Math.max(a,Math.min(b,x)),ez=x=>{x=cl(x);return x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2},eo=x=>1-Math.pow(1-cl(x),3),eb=x=>{x=cl(x);return 1+2.70158*Math.pow(x-1,3)+1.70158*Math.pow(x-1,2)};
+const FONT='"Trebuchet MS",system-ui,sans-serif',SERIF='Georgia,"Times New Roman",serif',GOLD='#ffd45a',CREAM='#fff4dc';
+function rs(){const r=c.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,1.5);cw=r.width;ch=r.height;c.width=Math.round(cw*dpr);c.height=Math.round(ch*dpr);src.width=Math.max(2,Math.round(cw));src.height=Math.max(2,Math.round(cw*1.25));MC=null}
+let sd=20261102;const rnd=()=>{sd=(sd+0x6D2B79F5)|0;let t=Math.imul(sd^sd>>>15,1|sd);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+function inPoly(x,y,P){let o=false;for(let i=0,j=P.length-1;i<P.length;j=i++){const a=P[i],b=P[j];if((a[1]>y)!=(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])o=!o}return o}
+const text=(s,x,y,f,col,al='center',st,lw)=>{g.font=f;g.textAlign=al;g.textBaseline='middle';if(st){g.lineJoin='round';g.lineWidth=lw||4;g.strokeStyle=st;g.strokeText(s,x,y)}g.fillStyle=col;g.fillText(s,x,y)};
+const spaced=(s,x,y,sp,f,col)=>{g.font=f;g.textAlign='left';g.textBaseline='middle';const a=[...s],ws=a.map(k=>g.measureText(k).width),tot=ws.reduce((p,q)=>p+q,0)+sp*(a.length-1);let xx=x-tot/2;g.fillStyle=col;a.forEach((k,i)=>{g.fillText(k,xx,y);xx+=ws[i]+sp})};
+const rrect=(x,y,w,h,r)=>{g.beginPath();if(g.roundRect)g.roundRect(x,y,w,h,r);else g.rect(x,y,w,h)};
+const pagne=(x,y,w,h)=>{const cols=['#d9482b','#e8a317','#2f9e5b','#fff4dc'],n=Math.max(1,Math.round(w/(h*1.6))),sw=w/n;for(let i=0;i<n;i++){g.fillStyle=cols[i%4];g.fillRect(x+i*sw,y,sw+.5,h)}};
+/* ---------- données du survol ---------- */
+const PT=[];for(let i=0;i<30000;i++){const x=-.2+rnd()*4.8,y=6.3+rnd()*6.8,ins=inPoly(x,y,GEO);if(!ins&&y<6.45)continue;const t=cl((y-6.3)/6),h=128-t*76+(rnd()-.5)*14,l=26+rnd()*16;PT.push({x,y,r:.007+rnd()*.02,a:rnd()*3,ins,c:ins?`hsla(${h},${44+rnd()*20}%,${l}%,.45)`:`hsla(${h},16%,${l+10}%,.34)`})}
+const PIN=PT.filter(p=>p.ins),POUT=PT.filter(p=>!p.ins);
+const WP=[{n:'',x:2.43,y:5.9},{n:'Cotonou',s:'Capitale économique, face à l’Atlantique',x:2.43,y:6.37},{n:'Abomey',s:'Ancienne capitale du royaume du Dahomey',x:1.99,y:7.18},{n:'Parakou',s:'Plus grande ville du nord',x:2.63,y:9.34},{n:'Natitingou',s:'Dans la chaîne de l’Atakora',x:1.38,y:10.3},{n:'Kandi',s:'Chef-lieu de l’Alibori',x:2.94,y:11.13},{n:'Malanville',s:'Au bord du fleuve Niger',x:3.38,y:11.87}];
+const BLD=[];WP.forEach((w,k)=>{if(!w.n)return;const n=k==1?26:14;for(let i=0;i<n;i++){BLD.push({x:w.x+(rnd()-.5)*(k==1?.16:.08),y:w.y+(rnd()-.5)*(k==1?.07:.06),w:.004+rnd()*.007,c:rnd()<.5?'#e6c795':'#c98e5e'})}});
+const ROUTE=[];(function(){const P=[WP[0],...WP].map(w=>[w.x,w.y]);for(let i=1;i<P.length-2;i++){const p0=P[i-1],p1=P[i],p2=P[i+1],p3=P[i+2];for(let k=0;k<24;k++){const u=k/24,u2=u*u,u3=u2*u;ROUTE.push([0,1].map(d=>.5*((2*p1[d])+(-p0[d]+p2[d])*u+(2*p0[d]-5*p1[d]+4*p2[d]-p3[d])*u2+(-p0[d]+3*p1[d]-3*p2[d]+p3[d])*u3)))}}ROUTE.push(P[P.length-2])})();
+const CUM=[0];for(let i=1;i<ROUTE.length;i++)CUM.push(CUM[i-1]+Math.hypot(ROUTE[i][0]-ROUTE[i-1][0],ROUTE[i][1]-ROUTE[i-1][1]));
+const RL=CUM[CUM.length-1];
+function at(s){s=cl(s,0,RL);let i=1;while(i<CUM.length-1&&CUM[i]<s)i++;const k=(s-CUM[i-1])/((CUM[i]-CUM[i-1])||1);return[ROUTE[i-1][0]+(ROUTE[i][0]-ROUTE[i-1][0])*k,ROUTE[i-1][1]+(ROUTE[i][1]-ROUTE[i-1][1])*k]}
+WP.forEach(w=>{let b=0,bd=9;ROUTE.forEach((p,i)=>{const d=Math.hypot(p[0]-w.x,p[1]-w.y);if(d<bd){bd=d;b=i}});w.d=CUM[b]});
+const CLOUDS=[];for(let i=0;i<46;i++)CLOUDS.push({x:.6+rnd()*3.6,y:6+rnd()*6.6,r:.05+rnd()*.09,v:.006+rnd()*.01,k:[...Array(4)].map(()=>[(rnd()-.5)*.14,(rnd()-.5)*.06,.6+rnd()*.5])});
+const LAND=[[-1,6.28],[1.62,6.28],[2.7,6.4],[6,6.4],[6,14],[-1,14]];
+const RIV=[[[3.62,11.7],[3.35,12.05],[3.2,12.4],[2.85,12.3],[2.4,11.9]],[[2.62,6.52],[2.55,7.0],[2.45,7.6],[2.6,8.2],[2.7,8.9],[2.85,9.6]]];
+/* ---------- décor crépuscule (scènes 1 et finale) ---------- */
+const STARS=[...Array(80)].map(()=>({x:rnd(),y:rnd()*.55,r:.5+rnd()*1.3,p:rnd()*6.28}));
+const FLY=[...Array(36)].map(()=>({x:rnd(),y:rnd(),v:.03+rnd()*.07,r:1+rnd()*2.2,p:rnd()*6.28}));
+function palm(x,y,h,lean,col){g.strokeStyle=col;g.lineCap='round';g.lineWidth=h*.06;g.beginPath();g.moveTo(x,y);g.quadraticCurveTo(x+lean*.2,y-h*.55,x+lean,y-h);g.stroke();const tx=x+lean,ty=y-h;g.lineWidth=h*.035;for(let i=0;i<8;i++){const a=-Math.PI*.95+i*Math.PI*.9/7,l=h*.42;g.beginPath();g.moveTo(tx,ty);g.quadraticCurveTo(tx+Math.cos(a)*l*.6,ty+Math.sin(a)*l*.6-h*.08,tx+Math.cos(a)*l,ty+Math.sin(a)*l+h*.16);g.stroke()}}
+function dusk(t,sr){
+ let gr=g.createLinearGradient(0,0,0,ch);gr.addColorStop(0,'#0f0a26');gr.addColorStop(.38,'#46195a');gr.addColorStop(.62,'#c9453c');gr.addColorStop(.78,'#ff9a3c');gr.addColorStop(1,'#ffd27a');g.fillStyle=gr;g.fillRect(0,0,cw,ch);
+ STARS.forEach(s=>{const a=(.4+.6*Math.sin(t*2+s.p))*(1-sr*.85);if(a<=0)return;g.fillStyle=`rgba(255,244,214,${a})`;g.beginPath();g.arc(s.x*cw,s.y*ch,s.r,0,7);g.fill()});
+ const sx=cw/2,sy=ch*(.92-.13*sr);
+ g.save();g.translate(sx,sy);g.rotate(t*.08);for(let i=0;i<16;i++){g.rotate(Math.PI*2/16);g.fillStyle='rgba(255,226,140,.10)';g.beginPath();g.moveTo(0,0);g.lineTo(cw*1.4,-cw*.05);g.lineTo(cw*1.4,cw*.05);g.fill()}g.restore();
+ const rg=g.createRadialGradient(sx,sy,0,sx,sy,cw*.8);rg.addColorStop(0,'rgba(255,236,160,.95)');rg.addColorStop(.18,'rgba(255,190,90,.65)');rg.addColorStop(1,'rgba(255,120,60,0)');g.fillStyle=rg;g.fillRect(0,0,cw,ch);
+ g.fillStyle='#fff3c4';g.beginPath();g.arc(sx,sy,cw*.11,0,7);g.fill();
+ [[.80,'#4a2252',.02,3],[.86,'#321640',.025,5],[.92,'#1d0d27',.03,7]].forEach((l,k)=>{g.fillStyle=l[1];g.beginPath();g.moveTo(0,ch);for(let x=0;x<=cw;x+=8)g.lineTo(x,ch*l[0]+Math.sin(x/cw*l[3]+k*1.7)*ch*l[2]+Math.sin(x/cw*l[3]*2.3+k)*ch*l[2]*.4);g.lineTo(cw,ch);g.fill()});
+ const pc='#12071a';palm(cw*.12,ch*.95,ch*.17,cw*.03+cw*.012*Math.sin(t*.9),pc);palm(cw*.21,ch*.97,ch*.11,-cw*.02+cw*.01*Math.sin(t*1.1),pc);palm(cw*.88,ch*.96,ch*.16,-cw*.035+cw*.012*Math.sin(t*1+1),pc);palm(cw*.79,ch*.98,ch*.1,cw*.02+cw*.008*Math.sin(t*1.2),pc);
+ FLY.forEach(p=>{const y=((p.y-t*p.v)%1+1)%1,a=.5+.5*Math.sin(t*3+p.p);g.fillStyle=`rgba(255,214,110,${.6*a})`;g.beginPath();g.arc((p.x+Math.sin(t*.7+p.p)*.03)*cw,(.3+y*.7)*ch,p.r,0,7);g.fill()})}
+/* ───── scène 1 : le drapeau ───── */
+function sceneFlag(t){
+ dusk(t,ez(t/5));
+ const fw=cw*.66,fh=fw*2/3,fx=(cw-fw)/2+10,h=eo(t/1.4),fy=ch*.11+(1-h)*ch*.14;
+ g.save();g.globalAlpha=cl(t/.6);
+ const pg=g.createLinearGradient(fx-14,0,fx-4,0);pg.addColorStop(0,'#a8741c');pg.addColorStop(.5,'#ffe08a');pg.addColorStop(1,'#8a5a14');g.fillStyle=pg;g.fillRect(fx-14,fy-16,9,ch*.76-fy);
+ g.fillStyle='#ffd45a';g.beginPath();g.arc(fx-9.5,fy-18,8,0,7);g.fill();g.strokeStyle='#6b4410';g.lineWidth=1.5;g.stroke();
+ g.shadowColor='rgba(0,0,0,.4)';g.shadowBlur=18;g.shadowOffsetY=6;
+ const st=3;for(let x=0;x<fw;x+=st){const u=x/fw,amp=fh*.05*(.12+u),w=Math.sin(u*8-t*4.5)*amp,sh=Math.cos(u*8-t*4.5),y=fy+w;
+  if(u<.4){g.fillStyle='#008751';g.fillRect(fx+x,y,st+1,fh)}else{g.fillStyle='#FCD116';g.fillRect(fx+x,y,st+1,fh/2);g.fillStyle='#E8112D';g.fillRect(fx+x,y+fh/2-.5,st+1,fh/2+.5)}
+  g.shadowColor='transparent';g.fillStyle=sh>0?`rgba(255,255,255,${sh*.16*u})`:`rgba(0,0,0,${-sh*.24*u})`;g.fillRect(fx+x,y,st+1,fh)}
+ g.restore();
+ const T0=1.3,cx=cw/2;
+ g.save();g.globalAlpha=eo((t-T0+.3)/.6);spaced('MON VOYAGE AU',cx,ch*.475,cw*.024,'700 '+Math.round(cw*.04)+'px '+FONT,GOLD);g.restore();
+ const word='BÉNIN',fs=Math.round(cw*.2),sp=cw*.012;g.font='900 '+fs+'px '+FONT;const ws=[...word].map(k=>g.measureText(k).width),tot=ws.reduce((p,q)=>p+q,0)+sp*4;let xx=cx-tot/2;
+ const tg=g.createLinearGradient(0,ch*.56-fs/2,0,ch*.56+fs/2);tg.addColorStop(0,'#fffaf0');tg.addColorStop(.55,'#ffe08a');tg.addColorStop(1,'#f2a424');
+ [...word].forEach((k,i)=>{const kk=eb((t-T0-i*.12)/.55);if(kk>0){g.save();g.translate(xx+ws[i]/2,ch*.56);g.scale(kk,kk);g.globalAlpha=cl(kk);g.font='900 '+fs+'px '+FONT;g.textAlign='center';g.textBaseline='middle';g.lineJoin='round';g.lineWidth=fs*.09;g.strokeStyle='rgba(60,20,12,.85)';g.strokeText(k,0,0);g.fillStyle=tg;g.fillText(k,0,0);g.restore()}xx+=ws[i]+sp});
+ const pb=eo((t-T0-.9)/.6);if(pb>0){const w=cw*.5*pb;pagne(cx-w/2,ch*.62,w,Math.max(5,cw*.016))}
+ g.save();g.globalAlpha=eo((t-T0-1.2)/.7);text('République du Bénin',cx,ch*.67,'italic 700 '+Math.round(cw*.058)+'px '+SERIF,CREAM,'center','rgba(40,10,30,.6)',5);g.restore();
+ g.save();g.globalAlpha=eo((t-T0-1.7)/.7);spaced('AFRIQUE DE L’OUEST · GOLFE DE GUINÉE',cx,ch*.705,cw*.006,'600 '+Math.round(cw*.03)+'px '+FONT,'#ffe3a6');g.restore();
+}
+/* ───── scène 2 : la carte colorée ───── */
+const CITY=[['Cotonou',2.43,6.37,'B'],['Porto-Novo',2.63,6.5,'R'],['Abomey',1.99,7.18,'R'],['Parakou',2.63,9.34,'L'],['Natitingou',1.38,10.3,'R'],['Kandi',2.94,11.13,'L']];
+function mapGeo(){const s=Math.min(cw*.94/3.35,ch*.7/6.8),ox=(cw-3.35*s)/2,oy=ch*.16;return{s,X:l=>ox+(l-.6)*s,Y:l=>oy+(12.7-l)*s}}
+function buildMC(){const{X,Y}=mapGeo(),W2=Math.round(cw*dpr),H2=Math.round(ch*dpr),V=voro(W2,H2,l=>X(l)*dpr,l=>Y(l)*dpr),cv=document.createElement('canvas');cv.width=W2;cv.height=H2;const q=cv.getContext('2d'),id=q.createImageData(W2,H2),px=id.data,L=V.L;
+ const PAL=[[46,156,90],[63,174,98],[39,137,90],[89,184,106],[74,160,95],[123,191,99],[154,199,90],[182,198,83],[201,189,79],[216,168,74],[207,143,67],[193,116,60]];
+ for(let y=0;y<H2;y++)for(let x=0;x<W2;x++){const o=y*W2+x,b=L[o];if(b<0)continue;const c=PAL[b],k=1+.08*Math.sin(x*.05/dpr+y*.04/dpr)+.12*(.5-y/H2);let r=c[0]*k,gg=c[1]*k,bb=c[2]*k;const rr=x+1<W2?L[o+1]:b,dd=y+1<H2?L[o+W2]:b;if((rr>=0&&rr!==b)||(dd>=0&&dd!==b)){r=r*.3+255*.7;gg=gg*.3+243*.7;bb=bb*.3+208*.7}const p=o*4;px[p]=r;px[p+1]=gg;px[p+2]=bb;px[p+3]=255}
+ q.putImageData(id,0,0);return cv}
+function sceneMap(t){
+ const{s,X,Y}=mapGeo();if(!MC)MC=buildMC();
+ let og=g.createLinearGradient(0,0,0,ch);og.addColorStop(0,'#0a2a45');og.addColorStop(.55,'#12507a');og.addColorStop(1,'#0a2237');g.fillStyle=og;g.fillRect(0,0,cw,ch);
+ const cy=Y(6.28),cy2=Y(6.4),x1=X(1.62),x2=X(2.7);
+ let lg=g.createLinearGradient(0,0,0,cy);lg.addColorStop(0,'#2a3f35');lg.addColorStop(1,'#44634a');g.fillStyle=lg;g.beginPath();g.moveTo(-5,-5);g.lineTo(cw+5,-5);g.lineTo(cw+5,cy2);g.lineTo(x2,cy2);g.lineTo(x1,cy);g.lineTo(-5,cy);g.closePath();g.fill();
+ g.strokeStyle='rgba(255,255,255,.14)';g.lineWidth=1.2;for(let k=1;k<12;k++){g.beginPath();for(let x=0;x<=cw;x+=10){const f=cl((x-x1)/(x2-x1)),y=cy+(cy2-cy)*f+k*15+Math.sin(x*.045+t*1.7+k*1.9)*2.6;x?g.lineTo(x,y):g.moveTo(x,y)}g.stroke()}
+ g.strokeStyle='rgba(255,255,255,.07)';for(let la=6;la<=13;la++){g.beginPath();g.moveTo(0,Y(la));g.lineTo(cw,Y(la));g.stroke()}for(let lo=1;lo<=4;lo++){g.beginPath();g.moveTo(X(lo),0);g.lineTo(X(lo),ch);g.stroke()}
+ g.strokeStyle='rgba(255,255,255,.55)';g.lineWidth=2.5;g.beginPath();g.moveTo(-5,cy);g.lineTo(x1,cy);g.lineTo(x2,cy2);g.lineTo(cw+5,cy2);g.stroke();
+ const pts=GEO.map(p=>[X(p[0]),Y(p[1])]);pts.push(pts[0]);
+ const top=Y(12.5),bot=Y(6.15),k=ez((t-1.8)/3.2);
+ if(k>0){const y=bot-(bot-top)*k;g.save();g.shadowColor='rgba(0,0,0,.45)';g.shadowBlur=18;g.shadowOffsetY=6;g.drawImage(MC,0,y*dpr,MC.width,(bot-y)*dpr+2,0,y,cw,bot-y+2);g.restore();if(k<1){g.fillStyle='rgba(255,238,170,.95)';g.shadowColor='#ffd45a';g.shadowBlur=14;g.fillRect(0,y-1.5,cw,3);g.shadowBlur=0}}
+ const cum=[0];for(let i=1;i<pts.length;i++)cum.push(cum[i-1]+Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]));
+ const tot=cum[cum.length-1],pr=ez(t/2.4),tg=tot*pr;let hd=pts[0];g.beginPath();g.moveTo(pts[0][0],pts[0][1]);
+ for(let i=1;i<pts.length;i++){if(cum[i]<=tg){g.lineTo(pts[i][0],pts[i][1]);hd=pts[i]}else{const kk=(tg-cum[i-1])/((cum[i]-cum[i-1])||1);hd=[pts[i-1][0]+(pts[i][0]-pts[i-1][0])*kk,pts[i-1][1]+(pts[i][1]-pts[i-1][1])*kk];g.lineTo(hd[0],hd[1]);break}}
+ g.lineJoin='round';g.strokeStyle='rgba(255,212,90,.3)';g.lineWidth=9;g.stroke();g.strokeStyle='#ffe9a8';g.lineWidth=2.6;g.stroke();
+ if(pr<1){g.beginPath();g.arc(hd[0],hd[1],5+Math.sin(t*12)*1.2,0,7);g.fillStyle='#fff';g.fill()}
+ const lab=(s2,lo,la,d,f)=>{const a=eo((t-d)/.6);if(a<=0)return;g.save();g.globalAlpha=a*.85;g.font=f;const w=g.measureText(s2).width,x=cl(X(lo),w/2+6,cw-w/2-6);text(s2,x,Y(la),f,'#e6efe0','center');g.restore()};
+ const fi='italic 700 '+Math.round(cw*.036)+'px '+SERIF;lab('Togo',.95,8.3,2.2,fi);lab('Nigeria',3.72,8.2,2.5,fi);lab('Niger',2.2,12.65,2.8,fi);lab('Burkina Faso',1.0,11.85,3.1,fi);lab('Océan Atlantique',2.2,5.95,3.4,'italic 700 '+Math.round(cw*.04)+'px '+SERIF);lab('Golfe de Guinée',2.2,5.7,3.6,'italic 600 '+Math.round(cw*.032)+'px '+SERIF);
+ CITY.forEach((c2,i)=>{const d=4.4+i*.34,kk=cl((t-d)/.4);if(kk<=0)return;const q=[X(c2[1]),Y(c2[2])],r=(i<2?5.5:4.5)*(1+Math.sin(kk*3.14)*.5);
+  g.beginPath();g.arc(q[0],q[1],r+3+Math.sin(t*4+i)*1.2,0,7);g.fillStyle='rgba(255,255,255,.25)';g.fill();g.beginPath();g.arc(q[0],q[1],r,0,7);g.fillStyle=i==1?'#ffd45a':'#fff8e6';g.fill();g.lineWidth=2;g.strokeStyle='#3a2412';g.stroke();
+  g.save();g.globalAlpha=kk;const f='800 '+Math.round(cw*.036)+'px '+FONT,m=c2[3];
+  if(m=='R')text(c2[0],q[0]+9,q[1]-(i==1?10:0),f,'#fff8e6','left','#1a2a1a');else if(m=='L')text(c2[0],q[0]-9,q[1],f,'#fff8e6','right','#1a2a1a');else text(c2[0],q[0]-6,q[1]+16,f,'#fff8e6','right','#0b3150');g.restore()});
+ const ta=eo(t/.7),tb=eo((t-3.2)/.7);
+ g.save();g.globalAlpha=ta*(1-tb);spaced('LE PAYS',cw/2,ch*.05,cw*.03,'700 '+Math.round(cw*.036)+'px '+FONT,GOLD);text('Les limites du Bénin',cw/2,ch*.095,'italic 800 '+Math.round(cw*.07)+'px '+SERIF,CREAM,'center','rgba(0,0,0,.45)',6);g.restore();
+ g.save();g.globalAlpha=tb;spaced('SUD → NORD',cw/2,ch*.05,cw*.03,'700 '+Math.round(cw*.036)+'px '+FONT,GOLD);text('Du golfe de Guinée au fleuve Niger',cw/2,ch*.095,'italic 800 '+Math.round(cw*.05)+'px '+SERIF,CREAM,'center','rgba(0,0,0,.45)',6);g.restore();
+ const ch2=[['12','départements'],['114 763 km²','superficie'],['Porto-Novo','capitale']],cwid=(cw*.92-16)/3;
+ ch2.forEach((q,i)=>{const a=eb((t-5.2-i*.25)/.5);if(a<=0)return;const x=cw*.04+i*(cwid+8),y=ch*.875,h=ch*.075;g.save();g.translate(x+cwid/2,y+h/2);g.scale(a,a);g.globalAlpha=cl(a);g.fillStyle='rgba(12,26,40,.82)';rrect(-cwid/2,-h/2,cwid,h,12);g.fill();g.strokeStyle='rgba(255,212,90,.7)';g.lineWidth=1.5;g.stroke();text(q[0],0,-h*.12,'800 '+Math.round(cw*(i==0?.06:.04))+'px '+FONT,CREAM);text(q[1],0,h*.27,'600 '+Math.round(cw*.03)+'px '+FONT,'#ffd45a');g.restore()});
+ g.save();g.globalAlpha=eo((t-6.2)/.6);text('Cotonou : capitale économique',cw/2,ch*.965,'italic 600 '+Math.round(cw*.034)+'px '+SERIF,'#d9e8f2');g.restore();
+}
+/* ───── scène 3 : vue aérienne ───── */
+const Z=360;
+function world(cLon,cLat,hd,tm){
+ const W=src.width,H=src.height,X=l=>l*Z,Y=l=>(13-l)*Z;
+ sg.setTransform(1,0,0,1,0,0);sg.clearRect(0,0,W,H);sg.translate(W/2,H*.86);sg.rotate(-hd);sg.translate(-X(cLon),-Y(cLat));
+ sg.fillStyle='#13689f';sg.fillRect(X(-2),Y(14),X(8)-X(-2),Y(4)-Y(14));
+ sg.fillStyle='rgba(90,210,215,.4)';sg.fillRect(X(-2),Y(6.28),X(8)-X(-2),Y(6.02)-Y(6.28));
+ sg.strokeStyle='rgba(255,255,255,.16)';sg.lineWidth=2;
+ for(let k=1;k<9;k++){sg.beginPath();for(let lo=cLon-1.3;lo<=cLon+1.3;lo+=.06){const y=Y(6.28-k*.05+Math.sin(lo*16+tm*1.6+k)*.004);lo>cLon-1.29?sg.lineTo(X(lo),y):sg.moveTo(X(lo),y)}sg.stroke()}
+ sg.beginPath();LAND.forEach((p,i)=>i?sg.lineTo(X(p[0]),Y(p[1])):sg.moveTo(X(p[0]),Y(p[1])));sg.closePath();sg.fillStyle='#8f9a5e';sg.fill();
+ const near=(p)=>Math.abs(p.x-cLon)<1&&Math.abs(p.y-cLat)<1.1;
+ POUT.forEach(p=>{if(!near(p))return;sg.fillStyle=p.c;sg.beginPath();sg.ellipse(X(p.x),Y(p.y),p.r*Z,p.r*Z*.6,p.a,0,7);sg.fill()});
+ const pp=()=>{sg.beginPath();GEO.forEach((p,i)=>i?sg.lineTo(X(p[0]),Y(p[1])):sg.moveTo(X(p[0]),Y(p[1])));sg.closePath()};
+ const bg=sg.createLinearGradient(0,Y(12.45),0,Y(6.3));bg.addColorStop(0,'#c4a24a');bg.addColorStop(.5,'#7fae45');bg.addColorStop(1,'#1f7a3d');
+ pp();sg.fillStyle=bg;sg.fill();
+ sg.save();pp();sg.clip();PIN.forEach(p=>{if(!near(p))return;sg.fillStyle=p.c;sg.beginPath();sg.ellipse(X(p.x),Y(p.y),p.r*Z,p.r*Z*.6,p.a,0,7);sg.fill()});
+ BLD.forEach(b=>{if(!near(b))return;sg.fillStyle=b.c;sg.fillRect(X(b.x),Y(b.y),b.w*Z*1.4,b.w*Z)});
+ sg.lineJoin='round';sg.strokeStyle='#3f9fd0';RIV.forEach((r,ri)=>{sg.lineWidth=ri?3:6;sg.beginPath();r.forEach((p,i)=>i?sg.lineTo(X(p[0]),Y(p[1])):sg.moveTo(X(p[0]),Y(p[1])));sg.stroke()});sg.restore();
+ sg.fillStyle='#2f95c8';sg.beginPath();sg.ellipse(X(2.45),Y(6.43),.11*Z,.03*Z,0,0,7);sg.fill();
+ pp();sg.lineJoin='round';sg.strokeStyle='rgba(255,212,90,.35)';sg.lineWidth=11;sg.stroke();sg.strokeStyle='#ffd23c';sg.lineWidth=3;sg.stroke();
+ sg.strokeStyle='rgba(255,255,255,.85)';sg.lineWidth=3;sg.setLineDash([12,10]);sg.lineDashOffset=-tm*14;sg.beginPath();sg.moveTo(X(-1),Y(6.28));sg.lineTo(X(1.62),Y(6.28));sg.lineTo(X(2.7),Y(6.4));sg.lineTo(X(6),Y(6.4));sg.stroke();sg.setLineDash([]);
+ CLOUDS.forEach(o=>{const ox=((o.x+tm*o.v-.6)%3.6+3.6)%3.6+.6;if(Math.abs(ox-cLon)>1.2||Math.abs(o.y-cLat)>1.3)return;
+  o.k.forEach(q=>{sg.fillStyle='rgba(0,0,0,.16)';sg.beginPath();sg.arc(X(ox+q[0]+.025),Y(o.y+q[1]-.03),o.r*q[2]*Z,0,7);sg.fill()});
+  o.k.forEach(q=>{sg.fillStyle='rgba(255,255,255,.32)';sg.beginPath();sg.arc(X(ox+q[0]),Y(o.y+q[1]),o.r*q[2]*Z,0,7);sg.fill()})});
+}
+function sceneAir(t){
+ const u=cl(t/C),sd2=RL*(u*u*(3-2*u)),p=at(sd2),q=at(sd2+.35),ph=Math.atan2(q[0]-p[0],q[1]-p[1]);
+ if(hdS===null)hdS=ph;let df=ph-hdS;df=Math.atan2(Math.sin(df),Math.cos(df));hdS+=df*cl(dtv*2.2);
+ world(p[0],p[1],hdS,t);
+ const y0=ch*.27,hg=ch-y0,SW=src.width,SH=src.height;
+ let sk=g.createLinearGradient(0,0,0,y0+2);sk.addColorStop(0,'#2f6fc0');sk.addColorStop(.6,'#8fc0e8');sk.addColorStop(1,'#ffe2b2');g.fillStyle=sk;g.fillRect(0,0,cw,y0+2);
+ for(let i=0;i<7;i++){const x=(((i*.19+t*.012*(1+i%3*.5))%1.4)-.2)*cw,y=y0*(.18+.13*(i%5)),r=cw*(.05+.02*(i%3));for(let k=0;k<4;k++){g.fillStyle='rgba(255,255,255,.5)';g.beginPath();g.ellipse(x+k*r*.8,y+Math.sin(k)*r*.15,r,r*.45,0,0,7);g.fill()}}
+ const dist=v=>(1/(.1+.9*v)-1)/9;
+ for(let y=y0;y<ch;y+=2){const v=(y-y0)/hg,v2=Math.min(1,(y+2-y0)/hg),f=dist(v),f2=dist(v2),sy=SH*(.94-f*.9),sy2=SH*(.94-f2*.9),sw=SW*(.6+.4*f);g.drawImage(src,(SW-sw)/2,sy,sw,Math.max(1,sy2-sy),0,y,cw,2.3)}
+ let wm=g.createLinearGradient(0,y0,0,ch);wm.addColorStop(0,'rgba(255,170,80,.12)');wm.addColorStop(1,'rgba(255,170,80,0)');g.fillStyle=wm;g.fillRect(0,y0,cw,hg);
+ let hz=g.createLinearGradient(0,y0,0,y0+hg*.36);hz.addColorStop(0,'rgba(255,226,178,.7)');hz.addColorStop(1,'rgba(255,226,178,0)');g.fillStyle=hz;g.fillRect(0,y0,cw,hg*.36);
+ g.save();g.globalCompositeOperation='lighter';const sgd=g.createRadialGradient(cw*.2,y0+4,0,cw*.2,y0+4,cw*.75);sgd.addColorStop(0,'rgba(255,230,170,.4)');sgd.addColorStop(.3,'rgba(255,190,110,.14)');sgd.addColorStop(1,'rgba(255,150,70,0)');g.fillStyle=sgd;g.fillRect(0,0,cw,ch);g.restore();
+ let vg=g.createRadialGradient(cw/2,ch*.55,cw*.3,cw/2,ch*.55,ch*.8);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(10,6,30,.42)');g.fillStyle=vg;g.fillRect(0,0,cw,ch);
+ const bh=ch*.075;g.fillStyle='rgba(8,5,20,.88)';g.fillRect(0,0,cw,bh);g.fillRect(0,ch-bh,cw,bh);
+ spaced('SURVOL DU BÉNIN',cw*.36,bh/2,cw*.014,'700 '+Math.round(cw*.032)+'px '+FONT,GOLD);
+ const s=Math.min(54/3.08,104/6.25),mw=3.08*s,mx=cw-mw-16,my=bh+12,M=(lo,la)=>[mx+(lo-.77)*s,my+(12.45-la)*s];
+ g.save();g.fillStyle='rgba(10,24,38,.6)';rrect(mx-6,my-6,mw+12,6.25*s+12,8);g.fill();g.strokeStyle='rgba(255,212,90,.6)';g.lineWidth=1;g.stroke();
+ g.beginPath();GEO.forEach((a,i)=>{const m=M(a[0],a[1]);i?g.lineTo(m[0],m[1]):g.moveTo(m[0],m[1])});g.closePath();g.fillStyle='rgba(120,190,90,.75)';g.fill();g.strokeStyle='#ffd23c';g.lineWidth=1.3;g.stroke();
+ g.beginPath();for(let i=0;i<ROUTE.length&&CUM[i]<=sd2;i++){const m=M(ROUTE[i][0],ROUTE[i][1]);i?g.lineTo(m[0],m[1]):g.moveTo(m[0],m[1])}const pm=M(p[0],p[1]);g.lineTo(pm[0],pm[1]);g.strokeStyle='#fff';g.lineWidth=2;g.stroke();
+ g.beginPath();g.arc(pm[0],pm[1],3.5,0,7);g.fillStyle='#E8112D';g.fill();g.restore();
+ const px0=cw*.1,pw=cw*.8,py=ch-bh/2;g.strokeStyle='rgba(255,244,220,.35)';g.lineWidth=3;g.lineCap='round';g.beginPath();g.moveTo(px0,py);g.lineTo(px0+pw,py);g.stroke();g.strokeStyle=GOLD;g.beginPath();g.moveTo(px0,py);g.lineTo(px0+pw*(sd2/RL),py);g.stroke();
+ WP.forEach(x=>{if(!x.n)return;g.fillStyle=sd2>=x.d-.01?GOLD:'rgba(255,244,220,.55)';g.beginPath();g.arc(px0+pw*(x.d/RL),py,4,0,7);g.fill()});
+ let w=null,wa=0;WP.forEach(x=>{if(!x.n)return;const k=1-Math.abs(sd2-x.d)/.42;if(k>wa){wa=k;w=x}});
+ if(w&&wa>0){const a=eo(wa*1.8),cwid=cw*.84,hh=ch*.09,x0=cw*.08-(1-a)*cw,yc=ch*.78;g.save();g.globalAlpha=cl(a*1.4);g.shadowColor='rgba(0,0,0,.5)';g.shadowBlur=14;g.fillStyle='rgba(18,12,38,.86)';rrect(x0,yc,cwid,hh,14);g.fill();g.shadowBlur=0;
+  g.save();rrect(x0,yc,cwid,hh,14);g.clip();['#008751','#FCD116','#E8112D'].forEach((col,i)=>{g.fillStyle=col;g.fillRect(x0,yc+hh/3*i,7,hh/3+1)});g.restore();
+  text('📍',x0+26,yc+hh/2,Math.round(cw*.06)+'px serif','#fff');text(w.n,x0+48,yc+hh*.34,'800 '+Math.round(cw*.06)+'px '+SERIF,CREAM,'left');text(w.s,x0+48,yc+hh*.72,'600 '+Math.round(cw*.034)+'px '+FONT,'#ffe3a6','left');g.restore()}
+}
+/* ───── finale ───── */
+function sceneEnd(t){
+ dusk(t+8,1);
+ const a=eb(t/.7),cx=cw/2;
+ g.save();g.translate(cx,ch*.4);g.scale(a,a);g.globalAlpha=cl(a);
+ text('Bonne route !',0,0,'900 '+Math.round(cw*.13)+'px '+FONT,CREAM,'center','rgba(60,20,12,.85)',cw*.018);g.restore();
+ pagne(cx-cw*.25,ch*.47,cw*.5,Math.max(5,cw*.016));
+ const bx=-cw*.2+(cw*1.4)*ez(t/E),by=ch*.78+Math.sin(t*14)*2;
+ for(let i=0;i<7;i++){g.fillStyle=`rgba(225,170,110,${.4-i*.05})`;g.beginPath();g.arc(bx-cw*.08-i*cw*.03,by+cw*.03,cw*(.012+i*.006),0,7);g.fill()}
+ g.save();g.translate(bx,by);g.scale(-1,1);g.font=Math.round(cw*.13)+'px serif';g.textAlign='center';g.textBaseline='middle';g.fillStyle='#fff';g.fillText('🛵',0,0);g.restore();
+}
+function wipe(p){const sk=ch*.07,x0=-.95*cw+p*3.25*cw;['#008751','#FCD116','#E8112D'].forEach((col,i)=>{const xl=x0-i*.5*cw,xr=xl+.6*cw;g.fillStyle=col;g.beginPath();g.moveTo(xl+sk,0);g.lineTo(xr+sk,0);g.lineTo(xr-sk,ch);g.lineTo(xl-sk,ch);g.fill()})}
+function draw(t){
+ g.setTransform(dpr,0,0,dpr,0,0);
+ if(t<A)sceneFlag(t);else if(t<A+B)sceneMap(t-A);else if(t<A+B+C)sceneAir(t-A-B);else sceneEnd(t-A-B-C);
+ g.fillStyle='rgba(255,212,90,.9)';g.fillRect(0,0,cw*t/T,3);
+ [A,A+B,A+B+C].forEach(b=>{const p=(t-(b-.4))/.8;if(p>0&&p<1)wipe(ez(p))});
+ if(t<.5){g.fillStyle=`rgba(0,0,0,${1-t/.5})`;g.fillRect(0,0,cw,ch)}
+}
+function close(){if(done)return;done=true;cancelAnimationFrame(raf);removeEventListener('resize',rs);ov.classList.add('out');setTimeout(()=>ov.remove(),700)}
+function loop(ts){if(done)return;dtv=Math.min(.05,(ts-last)/1000||0);last=ts;tt+=dtv;if(tt>=T){close();return}draw(tt);raf=requestAnimationFrame(loop)}
+document.getElementById('isk').addEventListener('click',close);
+addEventListener('resize',rs);rs();raf=requestAnimationFrame(loop);
+window.__introSeek=t=>{tt=t;hdS=null};
+})();
+</script></body></html>
